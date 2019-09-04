@@ -1,0 +1,33 @@
+dist: xenial
+sudo: false
+latex: true
+language: r
+r: release
+
+warnings_are_errors: false
+
+cache:
+  packages: true
+  
+apt_packages:
+  - libgdal-dev
+  - libudunits2-dev
+
+r_packages:
+  - rsconnect
+  - shiny
+  - tidyverse
+  - kableExtra
+  
+script:
+  - R -f deploy.R
+
+notifications:
+  email:
+   - jeremy@lab4fin.tech
+   
+  email:
+    recipients:
+     - jeremy@lab4fin.tech
+    on_success: <always|never|change>  # default: change
+    on_failure: <always|never|change>  # default: always
