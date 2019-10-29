@@ -8,17 +8,28 @@ shinyUI(fluidPage(
     h2(em("Démonstrateur et Comparateur")),
 
         navbarPage("Préambule",
-                   tabPanel("Présentation de l'application",),
-                   tabPanel("Notice d'utilisation à télécharger")),
+                   tabPanel("Présentation de l'application"),
+                   tabPanel("Notice d'utilisation à télécharger",
+                            sidebarLayout(
+                                sidebarPanel(
+                                    downloadButton("Notice", 
+                                                    "Télécharger la notice")),
+                                
+                                mainPanel("Notice d'utilisation",
+                                          includeMarkdown("Notice.Rmd")) )
+                            )), 
+    
     
         navbarPage("Base de données",
                    tabPanel("Présentation"),
                    tabPanel("Traitement")),
     
+    
         navbarPage("Support Vector Machine",
                    tabPanel("Principe"),
                    tabPanel("Démonstration"),
                    tabPanel("Résultat d'analyse optimale")),
+    
     
         navbarPage("Comparaison avec d'autres méthodes",
     
