@@ -1,35 +1,39 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
 
-# Define UI for application that draws a histogram
 shinyUI(fluidPage(
 
-    # Application title
-    titlePanel("Test déploiement Travis - ShinyApps.io"),
-    shiny::tags$p("Ce déploiement est entièrement réalisé par un job Travis !"),
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30),
-            hr(),
-            downloadButton("dlPDF", "Télécharger PDF de test")
-        ),
+    # Titre de l'application
+    h1(strong("Support Vector Machine")),
+    h2(em("Démonstrateur et Comparateur")),
 
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
+        navbarPage("Préambule",
+                   tabPanel("Présentation de l'application",),
+                   tabPanel("Notice d'utilisation à télécharger")),
+    
+        navbarPage("Base de données",
+                   tabPanel("Présentation"),
+                   tabPanel("Traitement")),
+    
+        navbarPage("Support Vector Machine",
+                   tabPanel("Principe"),
+                   tabPanel("Démonstration"),
+                   tabPanel("Résultat d'analyse optimale")),
+    
+        navbarPage("Comparaison avec d'autres méthodes",
+    
+                   tabPanel("Concurrents",
+                       tabsetPanel(
+                           tabPanel("Régression logistique"),
+                           tabPanel("KNN"),
+                           tabPanel("Random Forest"),
+                           tabPanel("Gradient Boosting"))),
+                   
+                   tabPanel("Comparaison",
+                        tabsetPanel(
+                           tabPanel("Comparaison réactive"),
+                           tabPanel("Comparaison optimale"),
+                           tabPanel("Conclusion"))))
+
+    
 ))
