@@ -94,10 +94,6 @@ shinyServer(function(input, output) {
     )
     
     
-    
-    #output$confusion_rf <- renderTable(taux_erreuropt=mean(rf.pred.opt!=test$Class))
-    
-    
     output$selected_mtry <- renderText({ 
        paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,".")
     })
