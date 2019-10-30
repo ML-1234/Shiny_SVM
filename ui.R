@@ -29,7 +29,8 @@ shinyUI(fluidPage(
     
         navbarPage("Support Vector Machine",
                    tabPanel("Principe"),
-                   tabPanel("Démonstration"),
+                   tabPanel("Démonstration",
+                            plotOutput("m_svm")),
                    tabPanel("Résultat d'analyse optimale")),
     
     
