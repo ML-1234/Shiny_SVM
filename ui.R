@@ -11,6 +11,7 @@ shinyUI(fluidPage(
                    tabPanel("Présentation de l'application"),
                    tabPanel("Notice d'utilisation à télécharger",
                             sidebarLayout(
+                                sliderInput("slider", "Slider", 1, 100, 50),
                                 sidebarPanel(
                                     #Ici vont les inputs réactifs du document rmarkdown 
                                     sliderInput("slider", "Slider", 1, 100, 50),
