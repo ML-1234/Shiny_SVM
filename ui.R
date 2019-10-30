@@ -9,6 +9,7 @@ shinyUI(fluidPage(
 
         navbarPage("Préambule",
                    tabPanel("Présentation de l'application"),
+                   tabPanel("Présentation de l'application")
                    tabPanel("Notice d'utilisation à télécharger",
                             sidebarLayout(
                                 sidebarPanel(
