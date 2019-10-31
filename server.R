@@ -3,7 +3,6 @@ library(ROSE)
 library(randomForest)
 library(unbalanced)
 library(e1071)
-library(caret)
 
 ####Base de données####
 bdd <- read.csv("creditcard.csv")
@@ -20,8 +19,6 @@ Y <- train$Class
 newData <- ubBalance(X, Y, type="ubUnder", positive=1, perc=0.3, method="percUnder")
 train_ub<-as.data.frame(cbind(newData$X, newData$Y))
 colnames(train_ub)[colnames(train_ub)=="newData$Y"] <- "Class"
-
-
 
 
 ####Fonctions#####
@@ -81,18 +78,30 @@ shinyServer(function(input, output) {
       # Document temporaire crée par copie, modifié avec les nouvelles valeurs des paramètres et replacé
       tempReport <- file.path(tempdir(), "Notice.Rmd")
       file.copy("Notice.Rmd", tempReport, overwrite = TRUE)
-      
-      # Ici on met les paramètres à rendre réactifs dans le document 
+
+      # Ici on met les paramètres à rendre réactifs dans le document
       # params <- list(n = input$slider)
-      
+
       rmarkdown::render(tempReport, output_file = file,
                         params = params,
                         envir = new.env(parent = globalenv())
       )
-      
+
     }
   )
+
+  output$txtknn<- renderText({ 
+    paste( "Vous avez choisi un nombre de voisins égales à", input$k,".")
+  })
   
+  output$confusion_knn <- renderTable({
+    k=input$k
+    k=as.numeric(k)
+    pred = knn(train_ub[,1:30], test[,1:30], train_ub[,31], k = k)
+    #table(pred,test$Class)
+    cmknn <- confusionMatrix(test$Class, pred)
+    draw_confusion_matrix(cmknn)
+  })
   
   output$selected_mtry <- renderText({ 
     paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,".")

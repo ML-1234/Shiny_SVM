@@ -11,14 +11,14 @@ shinyUI(fluidPage(
              tabPanel("Notice d'utilisation à télécharger",
                       sidebarLayout(
                         sidebarPanel(
-                          #Ici vont les inputs réactifs du document rmarkdown 
+                          #Ici vont les inputs réactifs du document rmarkdown
                           #sliderInput("slider", "Slider", 1, 100, 50),
-                          downloadButton("Notice", 
+                          downloadButton("Notice",
                                          "Télécharger la notice")),
-                        
+
                         mainPanel("Notice d'utilisation",
                                   includeMarkdown("Notice.Rmd")) )
-             )), 
+             )),
   
   
   navbarPage("Base de données",
@@ -38,7 +38,18 @@ shinyUI(fluidPage(
              tabPanel("Concurrents",
                       tabsetPanel(
                         tabPanel("Régression logistique"),
-                        tabPanel("KNN"),
+                        tabPanel("KNN",
+                        sidebarLayout(
+                          sidebarPanel(
+                            helpText("Choisir vos paramètres : par défaut, ils sont à l'optimal."),
+                            sliderInput("k","Nombre de voisins les plus proches",min=0, max=20,value=17)
+                          ),
+                          mainPanel(
+                            "La méthode KNN (K-Nearest Neighbors) consiste à prédire la classe d’une observation dans l’échantillon test en identifiant les K observations qui lui sont le plus proche.",
+                            
+                            textOutput("txtknn"),
+                            tableOutput("confusion_knn")
+                          ))),
                         tabPanel("Random Forest",
                                  sidebarLayout(
                                    sidebarPanel(
