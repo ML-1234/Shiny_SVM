@@ -3,6 +3,8 @@ library(ROSE)
 library(randomForest)
 library(unbalanced)
 library(e1071)
+library(caret)
+library(class)
 
 ####Base de données####
 bdd <- read.csv("creditcard.csv")

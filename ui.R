@@ -48,7 +48,7 @@ shinyUI(fluidPage(
                             "La méthode KNN (K-Nearest Neighbors) consiste à prédire la classe d’une observation dans l’échantillon test en identifiant les K observations qui lui sont le plus proche.",
                             
                             textOutput("txtknn"),
-                            tableOutput("confusion_knn")
+                            plotOutput("confusion_knn")
                           ))),
                         tabPanel("Random Forest",
                                  sidebarLayout(
@@ -64,7 +64,7 @@ shinyUI(fluidPage(
                                      "Nous vous présentons ici le modèle optimal obtenu par le Random Forest. Utilisez le curseur de défilement pour modifier les paramètres.",
                                      
                                      textOutput("selected_mtry"),
-                                     tableOutput("confusion_rf")
+                                     plotOutput("confusion_rf")
                                    ))),
                         tabPanel("Gradient Boosting"))),
              
