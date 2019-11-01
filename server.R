@@ -116,11 +116,8 @@ shinyServer(function(input, output) {
     paste( "Vous avez choisi un nombre de voisins égales à", input$k,".")
   })
   
-  output$confusion_knn <- renderTable({
-    k=input$k
-    k=as.numeric(k)
-    pred = knn(train_ub[,1:30], test[,1:30], train_ub[,31], k = k)
-    #table(pred,test$Class)
+    output$confusion_knn <- renderPlot({
+    pred = knn(train_ub[,1:30], test[,1:30], train_ub[,31], k=input$k)
     cmknn <- confusionMatrix(test$Class, pred)
     draw_confusion_matrix(cmknn)
   })
