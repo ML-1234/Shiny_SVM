@@ -124,7 +124,22 @@ shinyServer(function(input, output) {
   
 # Gradient Boosting
   
-# Régression linéaire
-
+  # Régression logistique
+  
+  output$confusion_RL <- renderPlot({
+    glm.fit=glm(Class~.,data=train_ub,family="binomial")
+    
+    glm.prob=predict(glm.fit,type="response")
+    
+    glm.pred=rep(0,nrow(test))
+    glm.pred[glm.prob<=.5]=0
+    glm.pred[glm.prob>.5]=1
+    
+    glm.pred=as.factor(glm.pred)
+    
+    cmrl <- confusionMatrix(test$Class, glm.pred)
+    draw_confusion_matrix(cmrl)
+  })
+  
   
 })
