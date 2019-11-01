@@ -37,7 +37,18 @@ shinyUI(fluidPage(
              
              tabPanel("Concurrents",
                       tabsetPanel(
-                        tabPanel("Régression logistique"),
+                        tabPanel("Régression logistique",
+                                 sidebarLayout(
+                                   sidebarPanel(
+                                     ),
+                                   
+                                   mainPanel(
+                                     "La régression logitique permet de mesurer l’association entre la variable expliquée qualitative et les variables explicatives.",
+                                     
+                                     plotOutput("confusion_RL")
+                                     
+                                   ))),
+                        
                         tabPanel("KNN",
                         sidebarLayout(
                           sidebarPanel(
