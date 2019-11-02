@@ -5,6 +5,7 @@ library(unbalanced)
 library(e1071)
 library(caret)
 library(class)
+library(pROC)
 
 ####Base de données####
 bdd <- read.csv("creditcard.csv")
@@ -103,6 +104,14 @@ shinyServer(function(input, output) {
     
   })
   
+   output$rocsvm <- renderPlot({
+    svm_model <- svm(form, data=train_ub, tpe="C-classification", kernel ="linear", scale=F)
+    pred_test <- predict(svm_model, test)
+    pred=as.numeric(pred_test)
+    roc=roc(test$Class,pred,plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
+
+  })
+  
 # RandomForest
   
   output$selected_mtry <- renderText({ 
@@ -116,11 +125,19 @@ shinyServer(function(input, output) {
     paste( "Vous avez choisi un nombre de voisins égales à", input$k,".")
   })
   
-    output$confusion_knn <- renderPlot({
+   output$confusion_knn <- renderPlot({
     pred = knn(train_ub[,1:30], test[,1:30], train_ub[,31], k=input$k)
     cmknn <- confusionMatrix(test$Class, pred)
     draw_confusion_matrix(cmknn)
   })
+  
+  output$rocknn <- renderPlot({
+    pred = knn(train_ub[,1:30], test[,1:30], train_ub[,31], k=input$k)
+    predknn=as.numeric(pred)
+    rocknn=roc(test$Class,predknn,plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
+
+  })
+ 
   
 # Gradient Boosting
   
@@ -139,6 +156,20 @@ shinyServer(function(input, output) {
     
     cmrl <- confusionMatrix(test$Class, glm.pred)
     draw_confusion_matrix(cmrl)
+  })
+  
+   output$rocrl <- renderPlot({
+    glm.fit=glm(Class~.,data=train_ub,family="binomial")
+    
+    glm.prob=predict(glm.fit,type="response")
+    
+    glm.pred=rep(0,nrow(test))
+    glm.pred[glm.prob<=.5]=0
+    glm.pred[glm.prob>.5]=1
+    
+    predlr=as.numeric(glm.pred)
+    roclr=roc(test$Class,predlr,plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
+
   })
   
   
