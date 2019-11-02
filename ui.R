@@ -29,7 +29,8 @@ shinyUI(fluidPage(
   navbarPage("Support Vector Machine",
              tabPanel("Principe"),
              tabPanel("Démonstration",
-                      plotOutput("m_svm")),
+                      plotOutput("m_svm"),
+                      plotOutput("rocsvm")),
              tabPanel("Résultat d'analyse optimale")),
   
   
@@ -40,12 +41,13 @@ shinyUI(fluidPage(
                         tabPanel("Régression logistique",
                                  sidebarLayout(
                                    sidebarPanel(
-                                     ),
+                                   ),
                                    
                                    mainPanel(
                                      "La régression logitique permet de mesurer l’association entre la variable expliquée qualitative et les variables explicatives.",
                                      
-                                     plotOutput("confusion_RL")
+                                     plotOutput("confusion_RL"),
+                                     plotOutput("rocrl")
                                      
                                    ))),
                         
@@ -59,7 +61,8 @@ shinyUI(fluidPage(
                             "La méthode KNN (K-Nearest Neighbors) consiste à prédire la classe d’une observation dans l’échantillon test en identifiant les K observations qui lui sont le plus proche.",
                             
                             textOutput("txtknn"),
-                            plotOutput("confusion_knn")
+                            plotOutput("confusion_knn"),
+                            plotOutput("rocknn")
                           ))),
                         tabPanel("Random Forest",
                                  sidebarLayout(
