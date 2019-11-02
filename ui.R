@@ -80,7 +80,17 @@ shinyUI(fluidPage(
                                      textOutput("selected_mtry"),
                                      plotOutput("confusion_rf")
                                    ))),
-                        tabPanel("Gradient Boosting"))),
+                        tabPanel("Gradient Boosting",
+                        
+                                  sidebarLayout(
+                                    sidebarPanel(),
+                                    mainPanel(
+                                      plotOutput("m_gb"),
+                                      plotOutput("roc_gb")
+                                    )
+                                  )
+                  
+                                  ))),
              
              tabPanel("Comparaison",
                       tabsetPanel(

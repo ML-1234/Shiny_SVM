@@ -1,11 +1,14 @@
 library(shiny)
-library(ROSE)
 library(randomForest)
 library(unbalanced)
 library(e1071)
 library(caret)
 library(class)
 library(pROC)
+library(ggplot2)
+library(corrplot)
+library(ROCR)
+library(gbm)
 
 ####Base de données####
 bdd <- read.csv("creditcard.csv")
@@ -38,8 +41,8 @@ draw_confusion_matrix <- function(cm) {
   text(195, 435, 'Pas de défaut', cex=1.2)
   rect(250, 430, 340, 370, col='#F7AD50')
   text(295, 435, 'Défaut', cex=1.2)
-  text(125, 370, 'Prédiction', cex=1.3, srt=90, font=2)
-  text(245, 450, 'Observation', cex=1.3, font=2)
+  text(125, 370, 'Observation', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Prédiction', cex=1.3, font=2)
   rect(150, 305, 240, 365, col='#F7AD50')
   rect(250, 305, 340, 365, col='#3F97D0')
   text(140, 400, 'Pas de défaut', cex=1.2, srt=90)
@@ -139,14 +142,55 @@ shinyServer(function(input, output) {
   })
  
   
-# Gradient Boosting
+  # Gradient Boosting
+  
+  output$m_gb <- renderPlot({
+    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
+    test$Class <- ifelse(test$Class==1, 1,0)
+    boost <- gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)
+    pred_test <- predict(boost, newdata=test, type="response", n.trees=5000)
+    pred_test_class <- factor(ifelse(pred_test>0.5, 1,0))
+    
+    test$Class <- as.factor(test$Class)
+    train_ub$Class <- as.factor(train_ub$Class)
+    cmtrx <- confusionMatrix(test$Class, pred_test_class)
+    draw_confusion_matrix(cmtrx)
+    
+  })
+  
+  output$roc_gb <- renderPlot({
+    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
+    test$Class <- ifelse(test$Class==1, 1,0)
+    boost <- gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)
+    pred_test <- predict(boost, newdata=test, type="response", n.trees=5000)
+    
+    ROCRpred_gb <- prediction(pred_test, test$Class)
+    perf_gb <- ROCR::performance(ROCRpred_gb, 'tpr','fpr') 
+    roc_gb.data <- data.frame(fpr=unlist(perf_gb@x.values),
+                              tpr=unlist(perf_gb@y.values), model="Gradient Boosting")
+    
+    # Couleurs du graphique
+    cols <- c("Gradient Boosting" = "#3DB7E4")
+    
+    # Création de la courbe ROC
+    ggplot() + 
+      geom_line(data = roc_gb.data, aes(x=fpr, y=tpr, colour = "Gradient Boosting")) +
+      geom_abline(color = "red", linetype=2) + theme_bw() + 
+      scale_colour_manual(name = "Modèle", values = cols) + 
+      xlab("Taux de Faux positifs") +
+      ylab("Taux de Vrais positifs") +
+      theme(legend.position = c(0.8, 0.2), 
+            legend.text = element_text(size = 15), 
+            legend.title = element_text(size = 15))
+    
+  })
   
   # Régression logistique
   
   output$confusion_RL <- renderPlot({
     glm.fit=glm(Class~.,data=train_ub,family="binomial")
     
-    glm.prob=predict(glm.fit,type="response")
+    glm.prob=predict(glm.fit, test, type="response")
     
     glm.pred=rep(0,nrow(test))
     glm.pred[glm.prob<=.5]=0
@@ -161,7 +205,7 @@ shinyServer(function(input, output) {
    output$rocrl <- renderPlot({
     glm.fit=glm(Class~.,data=train_ub,family="binomial")
     
-    glm.prob=predict(glm.fit,type="response")
+    glm.prob=predict(glm.fit, test, type="response")
     
     glm.pred=rep(0,nrow(test))
     glm.pred[glm.prob<=.5]=0
