@@ -130,8 +130,12 @@ shinyServer(function(input, output) {
   
 # RandomForest
   
-  output$selected_mtry <- renderText({ 
+  output$selected_param <- renderText({ 
     paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,".")
+  })
+  
+  output$optimal <- renderText({ 
+    paste( "Les paramètres optimaux qui permettent de minimiser le taux d'erreur sont de", mtry_opt, "pour le nombres de feuilles et",ntree_opt, "pour le nombres d'arbres dans la forêt.")
   })
   
   output$confusion_rf <- renderPlot({

@@ -67,9 +67,9 @@ shinyUI(fluidPage(
                         tabPanel("Random Forest",
                                  sidebarLayout(
                                    sidebarPanel(
-                                     helpText("Choisir vos paramètres : par défaut, ils sont à l'optimal."),
-                                     sliderInput("mtry","Nombre de feuilles finales",min=0, max=30,value=16), #Remplacer par mtry_opt
-                                     sliderInput("ntree","Nombre d'arbres dans la forêt",min=0, max=500,value=150) #Remplacer par ntree_opt
+                                     helpText("Choisissez vos paramètres :"),
+                                     sliderInput("mtry","Nombre de feuilles finales",min=0, max=30,value=15), 
+                                     sliderInput("ntree","Nombre d'arbres dans la forêt",min=0, max=500,value=250) 
                                    ),
                                    mainPanel(
                                      "La forêt aléatoire (ou Random Forest) est constituée d'un grand nombre d'arbres de décision individuels qui fonctionnent comme un ensemble. 
@@ -77,7 +77,8 @@ shinyUI(fluidPage(
                                      Chaque arbre individuel de la forêt prévoit le non-défaut ou le défaut (0 ou 1) et la classe majoritaire devient la prédiction de notre modèle.",
                                      "Nous vous présentons ici le modèle optimal obtenu par le Random Forest. Utilisez le curseur de défilement pour modifier les paramètres.",
                                      
-                                     textOutput("selected_mtry"),
+                                     textOutput("optimal"),
+                                     textOutput("selected_param"),
                                      plotOutput("confusion_rf"),
                                      textOutput("erreur_rf")
                                    ))),
