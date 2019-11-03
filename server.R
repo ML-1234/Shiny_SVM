@@ -75,7 +75,20 @@ draw_confusion_matrix <- function(cm) {
   text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
 }
 
-
+#Optimisation du Random Forest
+TrainData= train_ub[,-31] 
+TrainClasses=train_ub[,31] 
+rf.fcttrain= train(TrainData, TrainClasses, method = "rf", trControl = trainControl(method = "cv"))
+mtry_opt=as.integer(rf.fcttrain$bestTune)
+taux_erreur_ntree=vector()
+ntr=c(1,seq(10,500,by=10))
+for(j in ntr){
+  rf.datant=randomForest(form, train_ub, mtry=mtry_opt, ntree=j)
+  rf.datant.pred = predict(rf.datant,newdata=test)
+  txerreur=mean(rf.datant.pred!=test$Class)
+  taux_erreur_ntree=rbind(taux_erreur_ntree,txerreur)
+}
+ntree_opt=ntr[which.min(taux_erreur_ntree)]
 
 shinyServer(function(input, output) {
   output$report <- downloadHandler(
@@ -119,6 +132,21 @@ shinyServer(function(input, output) {
   
   output$selected_mtry <- renderText({ 
     paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,".")
+  })
+  
+  output$confusion_rf <- renderPlot({
+    rf.data=randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
+    rf.pred=predict(rf.data,test,type="response")
+    m_rf=table(rf.pred,test$Class)
+    cmrf <- confusionMatrix(test$Class, rf.pred)
+    draw_confusion_matrix(cmrf)
+  })
+  
+  output$erreur_rf <- renderText({
+    rf.data=randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
+    rf.pred=predict(rf.data,test,type="response")
+    taux_erreur=mean(rf.pred!=test$Class)
+    paste( "L'erreur est de", round(taux_erreur,4)*100,"%.")
   })
   
   
