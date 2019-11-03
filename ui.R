@@ -72,15 +72,14 @@ shinyUI(fluidPage(
                                      sliderInput("ntree","Nombre d'arbres dans la forêt",min=0, max=500,value=250) 
                                    ),
                                    mainPanel(
-                                     "La forêt aléatoire (ou Random Forest) est constituée d'un grand nombre d'arbres de décision individuels qui fonctionnent comme un ensemble. 
-                                     Le but est d'avoir un ensemble d'arbres qui soient moins corrélés car ils sont construits sur des échantillons différents.
+                                     "La forêt aléatoire (ou Random Forest) est constituée d'un grand nombre d'arbres de décision individuels qui sont construits sur des échantillons différents.
                                      Chaque arbre individuel de la forêt prévoit le non-défaut ou le défaut (0 ou 1) et la classe majoritaire devient la prédiction de notre modèle.",
-                                     "Nous vous présentons ici le modèle optimal obtenu par le Random Forest. Utilisez le curseur de défilement pour modifier les paramètres.",
-                                     
+                  
                                      textOutput("optimal"),
                                      textOutput("selected_param"),
                                      plotOutput("confusion_rf"),
-                                     textOutput("erreur_rf")
+                                     textOutput("erreur_rf"),
+                                     plotOutput("roc_rf") 
                                    ))),
                         tabPanel("Gradient Boosting",
                         

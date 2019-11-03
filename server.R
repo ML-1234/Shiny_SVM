@@ -153,6 +153,28 @@ shinyServer(function(input, output) {
     paste( "L'erreur est de", round(taux_erreur,4)*100,"%.")
   })
   
+  output$roc_rf <- renderPlot({
+    rf.data=randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
+    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
+    test$Class <- ifelse(test$Class==1, 1,0)
+    rf.pred=predict(rf.data,test,type="prob")
+    
+    ROCRpred_rf <- prediction(rf.pred[,2], test$Class)
+    perf_rf <- ROCR::performance(ROCRpred_rf, 'tpr','fpr') 
+    roc_rf.data <- data.frame(fpr=unlist(perf_rf@x.values),
+                              tpr=unlist(perf_rf@y.values), model="Random Forest")
+    cols <- c("Random Forest" = "#3DB7E4")
+    ggplot() + 
+      geom_line(data = roc_rf.data, aes(x=fpr, y=tpr, colour = "Random Forest")) +
+      geom_abline(color = "red", linetype=2) + theme_bw() + 
+      scale_colour_manual(name = "Modèle", values = cols) + 
+      xlab("Taux de Faux positifs") +
+      ylab("Taux de Vrais positifs") +
+      theme(legend.position = c(0.8, 0.2), 
+            legend.text = element_text(size = 15), 
+            legend.title = element_text(size = 15))
+    
+  })
   
 # KNN
   
