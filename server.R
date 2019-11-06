@@ -111,30 +111,24 @@ shinyServer(function(input, output) {
   )
   
   
-  # SVM 
+  # SVM
+  svm.fit <- reactive({svm(form, data=train_ub, type="C-classification", kernel ="linear")})
+  svm.pred <- reactive({predict(svm.fit(), test)})
   
   output$m_svm <- renderPlot({
-    svm_model <- svm(form, data=train_ub, tpe="C-classification", kernel ="linear", scale=T)
-    pred_test <- predict(svm_model, test)
-    cmtrx <- confusionMatrix(test$Class, pred_test)
-    draw_confusion_matrix(cmtrx, cols[1])
-    
+    pred <- svm.pred()
+    cmsvm <- confusionMatrix(test$Class, pred)
+    draw_confusion_matrix(cmsvm, cols[1])
   })
   
   
   # Régression logistique
+  glm.fit <- reactive({glm(Class~.,data=train_ub,family="binomial")})
+  glm.prob <- reactive({predict(glm.fit(), test, type="response")})
+  
   
   output$confusion_RL <- renderPlot({
-    glm.fit <- glm(Class~.,data=train_ub,family="binomial")
-    
-    glm.prob <- predict(glm.fit, test, type="response")
-    
-    glm.pred <- rep(0,nrow(test))
-    glm.pred[glm.prob<=.5]=0
-    glm.pred[glm.prob>.5]=1
-    
-    glm.pred <- as.factor(glm.pred)
-    
+    glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
     cmrl <- confusionMatrix(test$Class, glm.pred)
     draw_confusion_matrix(cmrl, cols[2])
   })
@@ -151,36 +145,35 @@ shinyServer(function(input, output) {
     paste( "Les paramètres optimaux qui permettent de minimiser le taux d'erreur sont de", mtry_opt, "pour le nombres de feuilles et",ntree_opt, "pour le nombres d'arbres dans la forêt.")
   })
   
+  rf.fit <- reactive({randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)})
+  rf.pred <- reactive({predict(rf.fit(),test,type="response")})
+  cmrf <- reactive({confusionMatrix(test$Class, rf.pred())})
+  
   output$confusion_rf <- renderPlot({
-    rf.data <- randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
-    rf.pred <- predict(rf.data,test,type="response")
-    m_rf <- table(rf.pred,test$Class)
-    cmrf <- confusionMatrix(test$Class, rf.pred)
-    draw_confusion_matrix(cmrf, cols[4])
+    draw_confusion_matrix(cmrf(), cols[4])
   })
   
   output$erreur_rf <- renderText({
-    rf.data <- randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
-    rf.pred <- predict(rf.data,test,type="response")
-    taux_erreur <- mean(rf.pred!=test$Class)
-    paste( "L'erreur est de", round(taux_erreur,4)*100,"%.")
+    taux_erreur <- paste(round((1 - sum(diag(cmrf()$table))/sum(cmrf()$table))*100, 3),"%")
+    paste( "L'erreur est de", taux_erreur,"%.")
   })
   
   
-  
   # Gradient Boosting
+  boost.fit <- reactive({train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
+                     test$Class <- ifelse(test$Class==1, 1,0)
+                     gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)})
+  
+  boost.pred <- reactive({predict(boost.fit(), newdata=test, type="response", n.trees=5000)})
+  
   
   output$m_gb <- renderPlot({
-    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-    test$Class <- ifelse(test$Class==1, 1,0)
-    boost <- gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)
-    pred_test <- predict(boost, newdata=test, type="response", n.trees=5000)
-    pred_test_class <- factor(ifelse(pred_test>0.5, 1,0))
+    boost.pred.class <- factor(ifelse(boost.pred()>0.5, 1,0))
     
     test$Class <- as.factor(test$Class)
     train_ub$Class <- as.factor(train_ub$Class)
-    cmtrx <- confusionMatrix(test$Class, pred_test_class)
-    draw_confusion_matrix(cmtrx, cols[5])
+    cmgb <- confusionMatrix(test$Class, boost.pred.class)
+    draw_confusion_matrix(cmgb, cols[5])
     
   })
   
