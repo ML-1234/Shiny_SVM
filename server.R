@@ -16,6 +16,7 @@ bdd <- read.csv("creditcard.csv")
 bdd$Class <- as.factor(bdd$Class)
 form <- Class~.
 
+set.seed(123)
 idx <- sample(1:nrow(bdd), as.integer(0.75*nrow(bdd)))
 train <- bdd[idx, ]
 test <- bdd[-idx, ]
@@ -58,29 +59,26 @@ draw_confusion_matrix <- function(cm, color) {
   text(295, 400, res[3], cex=1.6, font=2, col='black')
   text(295, 335, res[4], cex=1.6, font=2, col='white')
   
-  # Ajout des détails
-  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  # Ajout des statistiques : sensitivité, spécificité, précision
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "STATISTIQUES", cex.main=1.8, xaxt='n', yaxt='n')
   text(10, 85, "Sensitivité", cex=1.2, font=2)
-  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
-  text(30, 85, "Spécificité", cex=1.2, font=2)
-  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
-  text(50, 85, "Précision", cex=1.2, font=2)
-  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
-  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
-  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
-  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
-  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+  text(10, 70, paste(round(as.numeric(cm$byClass[1])*100, 3), '%'), cex=1.2)
+  text(50, 85, "Spécificité", cex=1.2, font=2)
+  text(50, 70, paste(round(as.numeric(cm$byClass[2])*100, 3), '%'), cex=1.2)
+  text(90, 85, "Précision", cex=1.2, font=2)
+  text(90, 70, paste(round(as.numeric(cm$byClass[5])*100, 3), '%'), cex=1.2)
   
-  # Ajout de l'Accuracy et Kappa
-  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
-  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
-  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
-  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+  
+  # Ajout des taux d'exactitude et d'erreur
+  text(30, 35, "Taux d'exactitude", cex=1.5, font=2)
+  text(30, 20, paste(round(as.numeric(cm$overall[1])*100, 3), '%'), cex=1.4)
+  text(70, 35, "Taux d'erreur", cex=1.5, font=2)
+  text(70, 20, paste(round((1 - sum(diag(cm$table))/sum(cm$table))*100, 3),"%"), cex=1.4)
 }
 
-#Optimisation du Random Forest
-TrainData <- train_ub[,-31] 
-TrainClasses <- train_ub[,31] 
+# Optimisation du Random Forest
+TrainData <- train_ub[,-31]
+TrainClasses <- train_ub[,31]
 rf.fcttrain <- train(TrainData, TrainClasses, method = "rf", trControl = trainControl(method = "cv"))
 mtry_opt <- as.integer(rf.fcttrain$bestTune)
 taux_erreur_ntree <- vector()
@@ -112,165 +110,146 @@ shinyServer(function(input, output) {
     }
   )
 
-  
-# SVM 
-  
+
+# SVM
+  svm_model <- reactive({svm(form, data=train_ub, type="C-classification", kernel ="linear")})
+  pred_reac <- reactive({predict(svm_model(), test)})
+
   output$m_svm <- renderPlot({
-    svm_model <- svm(form, data=train_ub, tpe="C-classification", kernel ="linear", scale=F)
-    pred_test <- predict(svm_model, test)
-    cmtrx <- confusionMatrix(test$Class, pred_test)
-    draw_confusion_matrix(cmtrx, cols[1])
-    
+    pred <- pred_reac()
+    cmsvm <- confusionMatrix(test$Class, pred)
+    draw_confusion_matrix(cmsvm, cols[1])
+
   })
-  
-   output$rocsvm <- renderPlot({
-    svm_model <- svm(form, data=train_ub, tpe="C-classification", kernel ="linear", scale=F)
-    pred_test <- predict(svm_model, test)
-    pred <- as.numeric(pred_test)
-    roc <- roc(test$Class,pred,plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
+
+   output$roc_svm <- renderPlot({
+    #pred_test <- predict(svm_model(), test)
+    pred_num <- as.numeric(pred_reac())
+    roc <- roc(test$Class, pred_num, plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
 
   })
    
-# Régression logistique
    
+   
+# Régression logistique
+  glm.fit <- reactive({glm(Class~.,data=train_ub,family="binomial")})
+  glm.prob <- reactive({predict(glm.fit(), test, type="response")})
+
+  
    output$confusion_RL <- renderPlot({
-     glm.fit <- glm(Class~.,data=train_ub,family="binomial")
-     
-     glm.prob <- predict(glm.fit, test, type="response")
-     
-     glm.pred <- rep(0,nrow(test))
-     glm.pred[glm.prob<=.5]=0
-     glm.pred[glm.prob>.5]=1
-     
-     glm.pred <- as.factor(glm.pred)
-     
+     glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
+
      cmrl <- confusionMatrix(test$Class, glm.pred)
      draw_confusion_matrix(cmrl, cols[2])
    })
+
    
    output$rocrl <- renderPlot({
-     glm.fit <- glm(Class~.,data=train_ub,family="binomial")
-     
-     glm.prob <- predict(glm.fit, test, type="response")
-     
-     glm.pred <- rep(0,nrow(test))
-     glm.pred[glm.prob<=.5]=0
-     glm.pred[glm.prob>.5]=1
-     
-     predlr <- as.numeric(glm.pred)
-     roclr <- roc(test$Class,predlr,plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
-     
-   })
 
-# KNN
-   
-   output$txtknn <- renderText({ 
-     paste( "Vous avez choisi un nombre de voisins égales à", input$k,".")
+         ROCRpred_rl <- prediction(glm.prob(), test$Class)
+         perf_rl <- ROCR::performance(ROCRpred_rl, 'tpr','fpr')
+         roc_rl.data <- data.frame(fpr=unlist(perf_rl@x.values),
+                                   tpr=unlist(perf_rl@y.values), model='Régression Logistique')
+
+         # Création de la courbe ROC
+         ggplot() +
+           geom_line(data = roc_rl.data, aes(x=fpr, y=tpr, colour = 'Régression Logistique')) +
+           geom_abline(color = "grey", linetype=2) + theme_bw() +
+           scale_colour_manual(name = "Modèle", values = cols[2]) +
+           xlab("Taux de Faux positifs") +
+           ylab("Taux de Vrais positifs") +
+           theme(legend.position = c(0.8, 0.2),
+                 legend.text = element_text(size = 15),
+                 legend.title = element_text(size = 15))
+
    })
-   
-   output$confusion_knn <- renderPlot({
-     pred <- knn(train_ub[,1:30], test[,1:30], train_ub[,31], k=input$k)
-     cmknn <- confusionMatrix(test$Class, pred)
-     draw_confusion_matrix(cmknn, cols[3])
-   })
-   
-   output$rocknn <- renderPlot({
-     pred <- knn(train_ub[,1:30], test[,1:30], train_ub[,31], k=input$k)
-     predknn <- as.numeric(pred)
-     rocknn <- roc(test$Class,predknn,plot=TRUE, print.auc=TRUE, col="red", main= "Courbe ROC")
-     
-   })
-   
-  
+ 
+ 
 # RandomForest
-  
-  output$selected_param <- renderText({ 
+
+  output$selected_param <- renderText({
     paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,".")
   })
-  
-  output$optimal <- renderText({ 
+
+  output$optimal <- renderText({
     paste( "Les paramètres optimaux qui permettent de minimiser le taux d'erreur sont de", mtry_opt, "pour le nombres de feuilles et",ntree_opt, "pour le nombres d'arbres dans la forêt.")
   })
-  
+
+  rf.data <- reactive({randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)})
+  rf.pred <- reactive({predict(rf.data(),test,type="response")})
+  cmrf <- reactive({confusionMatrix(test$Class, rf.pred())})
+
   output$confusion_rf <- renderPlot({
-    rf.data <- randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
-    rf.pred <- predict(rf.data,test,type="response")
-    m_rf <- table(rf.pred,test$Class)
-    cmrf <- confusionMatrix(test$Class, rf.pred)
-    draw_confusion_matrix(cmrf, cols[4])
+    draw_confusion_matrix(cmrf(), cols[4])
   })
-  
+
   output$erreur_rf <- renderText({
-    rf.data <- randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
-    rf.pred <- predict(rf.data,test,type="response")
-    taux_erreur <- mean(rf.pred!=test$Class)
-    paste( "L'erreur est de", round(taux_erreur,4)*100,"%.")
+    taux_erreur <- paste(round((1 - sum(diag(cmrf()$table))/sum(cmrf()$table))*100, 3),"%")
+    paste( "L'erreur est de", taux_erreur,"%.")
   })
-  
+
   output$roc_rf <- renderPlot({
-    rf.data <- randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
+    #rf.data <- randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
     train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
     test$Class <- ifelse(test$Class==1, 1,0)
-    rf.pred <- predict(rf.data,test,type="prob")
-    
-    ROCRpred_rf <- prediction(rf.pred[,2], test$Class)
-    perf_rf <- ROCR::performance(ROCRpred_rf, 'tpr','fpr') 
+    rf.prob <- predict(rf.data(),test,type="prob")
+
+    ROCRpred_rf <- prediction(rf.prob[,2], test$Class)
+    perf_rf <- ROCR::performance(ROCRpred_rf, 'tpr','fpr')
     roc_rf.data <- data.frame(fpr=unlist(perf_rf@x.values),
                               tpr=unlist(perf_rf@y.values), model="Random Forest")
 
-    ggplot() + 
+    ggplot() +
       geom_line(data = roc_rf.data, aes(x=fpr, y=tpr, colour = "Random Forest")) +
-      geom_abline(color = "grey", linetype=2) + theme_bw() + 
-      scale_colour_manual(name = "Modèle", values = cols[4]) + 
+      geom_abline(color = "grey", linetype=2) + theme_bw() +
+      scale_colour_manual(name = "Modèle", values = cols[4]) +
       xlab("Taux de Faux positifs") +
       ylab("Taux de Vrais positifs") +
-      theme(legend.position = c(0.8, 0.2), 
-            legend.text = element_text(size = 15), 
+      theme(legend.position = c(0.8, 0.2),
+            legend.text = element_text(size = 15),
             legend.title = element_text(size = 15))
-    
+
   })
-  
-  
+
+
 # Gradient Boosting
-  
+  boost <- reactive({train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
+                     test$Class <- ifelse(test$Class==1, 1,0)
+                     gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)})
+
+  pred_test <- reactive({predict(boost(), newdata=test, type="response", n.trees=5000)})
+
+
   output$m_gb <- renderPlot({
-    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-    test$Class <- ifelse(test$Class==1, 1,0)
-    boost <- gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)
-    pred_test <- predict(boost, newdata=test, type="response", n.trees=5000)
-    pred_test_class <- factor(ifelse(pred_test>0.5, 1,0))
-    
+    pred_test_class <- factor(ifelse(pred_test()>0.5, 1,0))
+
     test$Class <- as.factor(test$Class)
     train_ub$Class <- as.factor(train_ub$Class)
-    cmtrx <- confusionMatrix(test$Class, pred_test_class)
-    draw_confusion_matrix(cmtrx, cols[5])
-    
+    cmgb <- confusionMatrix(test$Class, pred_test_class)
+    draw_confusion_matrix(cmgb, cols[5])
+
   })
-  
+
   output$roc_gb <- renderPlot({
-    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-    test$Class <- ifelse(test$Class==1, 1,0)
-    boost <- gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)
-    pred_test <- predict(boost, newdata=test, type="response", n.trees=5000)
-    
-    ROCRpred_gb <- prediction(pred_test, test$Class)
-    perf_gb <- ROCR::performance(ROCRpred_gb, 'tpr','fpr') 
+
+    ROCRpred_gb <- prediction(pred_test(), test$Class)
+    perf_gb <- ROCR::performance(ROCRpred_gb, 'tpr','fpr')
     roc_gb.data <- data.frame(fpr=unlist(perf_gb@x.values),
                               tpr=unlist(perf_gb@y.values), model="Gradient Boosting")
-    
+
     # Création de la courbe ROC
-    ggplot() + 
+    ggplot() +
       geom_line(data = roc_gb.data, aes(x=fpr, y=tpr, colour = "Gradient Boosting")) +
-      geom_abline(color = "grey", linetype=2) + theme_bw() + 
-      scale_colour_manual(name = "Modèle", values = cols[5]) + 
+      geom_abline(color = "grey", linetype=2) + theme_bw() +
+      scale_colour_manual(name = "Modèle", values = cols[5]) +
       xlab("Taux de Faux positifs") +
       ylab("Taux de Vrais positifs") +
-      theme(legend.position = c(0.8, 0.2), 
-            legend.text = element_text(size = 15), 
+      theme(legend.position = c(0.8, 0.2),
+            legend.text = element_text(size = 15),
             legend.title = element_text(size = 15))
-    
+
   })
-  
-  
-  
+
+
+
 })
