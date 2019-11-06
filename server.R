@@ -91,6 +91,9 @@ for(j in ntr){
 }
 ntree_opt <- ntr[which.min(taux_erreur_ntree)]
 
+
+
+
 shinyServer(function(input, output) {
   output$report <- downloadHandler(
     filename = "Notice.html",
@@ -181,9 +184,7 @@ shinyServer(function(input, output) {
   output$roc <-renderPlot({
     
     #Régression logistique
-    glm.fit=glm(Class~.,data=train_ub,family="binomial")
-    glm.prob=predict(glm.fit, test, type="response")
-    ROCRpred_glm <- prediction(glm.prob, test$Class)
+    ROCRpred_glm <- prediction(glm.prob(), test$Class)
     perf_glm <- ROCR::performance(ROCRpred_glm, 'tpr','fpr')
     roc_glm.data <- data.frame(fpr=unlist(perf_glm@x.values),
                                tpr=unlist(perf_glm@y.values), model="Régression logistique")
@@ -210,12 +211,7 @@ shinyServer(function(input, output) {
     
     
     #Gradient Boosting
-    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-    test$Class <- ifelse(test$Class==1, 1,0)
-    boost <- gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)
-    pred_test <- predict(boost, newdata=test, type="response", n.trees=5000)
-    
-    ROCRpred_gb <- prediction(pred_test, test$Class)
+    ROCRpred_gb <- prediction(boost.pred(), test$Class)
     perf_gb <- ROCR::performance(ROCRpred_gb, 'tpr','fpr') 
     roc_gb.data <- data.frame(fpr=unlist(perf_gb@x.values),
                               tpr=unlist(perf_gb@y.values), model="Gradient Boosting")
