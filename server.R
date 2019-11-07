@@ -94,6 +94,9 @@ ntree_opt <- ntr[which.min(taux_erreur_ntree)]
 
 
 
+
+
+
 shinyServer(function(input, output) {
   output$report <- downloadHandler(
     filename = "Notice.html",
@@ -115,9 +118,14 @@ shinyServer(function(input, output) {
   
   
   # SVM
-  svm.fit <- reactive({svm(form, data=train_ub, type="C-classification", kernel ="linear")})
-  svm.pred <- reactive({predict(svm.fit(), test)})
+  ##Modèle
+
+  svm.fit <- reactive({
+    svm(form, data=train_ub, type="C-classification", kernel ="linear", probability = TRUE)})
   
+  svm.pred <- reactive({predict(svm.fit(), test, probability=TRUE)})
+  
+  ##Matrice de confusion
   output$m_svm <- renderPlot({
     pred <- svm.pred()
     cmsvm <- confusionMatrix(test$Class, pred)
@@ -126,10 +134,11 @@ shinyServer(function(input, output) {
   
   
   # Régression logistique
+  ##Modèle
   glm.fit <- reactive({glm(Class~.,data=train_ub,family="binomial")})
   glm.prob <- reactive({predict(glm.fit(), test, type="response")})
   
-  
+  ##Matrice de confusion
   output$confusion_RL <- renderPlot({
     glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
     cmrl <- confusionMatrix(test$Class, glm.pred)
@@ -139,6 +148,10 @@ shinyServer(function(input, output) {
   
   
   # RandomForest
+  ## Modèle et matrice simple
+  rf.fit <- reactive({randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)})
+  rf.pred <- reactive({predict(rf.fit(),test,type="response")})
+  cmrf <- reactive({confusionMatrix(test$Class, rf.pred())})
   
   output$selected_param <- renderText({ 
     paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,".")
@@ -148,10 +161,7 @@ shinyServer(function(input, output) {
     paste( "Les paramètres optimaux qui permettent de minimiser le taux d'erreur sont de", mtry_opt, "pour le nombres de feuilles et",ntree_opt, "pour le nombres d'arbres dans la forêt.")
   })
   
-  rf.fit <- reactive({randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)})
-  rf.pred <- reactive({predict(rf.fit(),test,type="response")})
-  cmrf <- reactive({confusionMatrix(test$Class, rf.pred())})
-  
+  ##Matrice de confusion
   output$confusion_rf <- renderPlot({
     draw_confusion_matrix(cmrf(), cols[4])
   })
@@ -163,6 +173,7 @@ shinyServer(function(input, output) {
   
   
   # Gradient Boosting
+  ##Modèle
   boost.fit <- reactive({train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
                      test$Class <- ifelse(test$Class==1, 1,0)
                      gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)})
@@ -170,6 +181,7 @@ shinyServer(function(input, output) {
   boost.pred <- reactive({predict(boost.fit(), newdata=test, type="response", n.trees=5000)})
   
   
+  ##Matrice de confusion
   output$m_gb <- renderPlot({
     boost.pred.class <- factor(ifelse(boost.pred()>0.5, 1,0))
     
@@ -181,49 +193,45 @@ shinyServer(function(input, output) {
   })
   
   
+  
+  #Courbe ROC
   output$roc <-renderPlot({
     
-    #Régression logistique
-    ROCRpred_glm <- prediction(glm.prob(), test$Class)
-    perf_glm <- ROCR::performance(ROCRpred_glm, 'tpr','fpr')
-    roc_glm.data <- data.frame(fpr=unlist(perf_glm@x.values),
-                               tpr=unlist(perf_glm@y.values), model="Régression logistique")
-    #Random Forest 
-    rf.data=randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)
-    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-    test$Class <- ifelse(test$Class==1, 1,0)
-    rf.pred=predict(rf.data,test,type="prob")
-    ROCRpred_rf <- prediction(rf.pred[,2], test$Class)
-    perf_rf <- ROCR::performance(ROCRpred_rf, 'tpr','fpr') 
-    roc_rf.data <- data.frame(fpr=unlist(perf_rf@x.values),
-                              tpr=unlist(perf_rf@y.values), model="Random Forest")
-    #SVM
-    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-    test$Class <- ifelse(test$Class==1, 1,0)
-    svm_model <- svm(form, data=train_ub, tpe="C-classification", kernel ="linear",scale=T)
-    svm.prob <- predict(svm_model, test)
-    ROCRpred_svm <- prediction(as.numeric(svm.prob), as.numeric(test$Class))
-    ROCRpred_svm
+    ##SVM
+    svm.fit.prob <-attr(svm.pred(),"probabilities")
+    ROCRpred_svm <- prediction(svm.fit.prob[,2], test$Class)
     perf_svm <- ROCR::performance(ROCRpred_svm, 'tpr','fpr')
     roc_svm.data <- data.frame(fpr=unlist(perf_svm@x.values),
                                tpr=unlist(perf_svm@y.values), model="Support Vector Machine")
     
+    ##Régression logistique
+    ROCRpred_glm <- prediction(glm.prob(), test$Class)
+    perf_glm <- ROCR::performance(ROCRpred_glm, 'tpr','fpr')
+    roc_glm.data <- data.frame(fpr=unlist(perf_glm@x.values),
+                               tpr=unlist(perf_glm@y.values), model="Régression logistique")
     
-    
-    #Gradient Boosting
+    ##Gradient Boosting
     ROCRpred_gb <- prediction(boost.pred(), test$Class)
     perf_gb <- ROCR::performance(ROCRpred_gb, 'tpr','fpr') 
     roc_gb.data <- data.frame(fpr=unlist(perf_gb@x.values),
                               tpr=unlist(perf_gb@y.values), model="Gradient Boosting")
     
-    
+    ##Random Forest 
+    train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
+    test$Class <- ifelse(test$Class==1, 1,0)
+    rf.prob <- predict(rf.fit(),test,type="prob")
+    ROCRpred_rf <- prediction(rf.prob[,2], test$Class)
+    perf_rf <- ROCR::performance(ROCRpred_rf, 'tpr','fpr') 
+    roc_rf.data <- data.frame(fpr=unlist(perf_rf@x.values),
+                              tpr=unlist(perf_rf@y.values), model="Random Forest")
+
+    ##Ensemble
     ggplot() + 
-      geom_line(data = roc_svm.data, aes(x = fpr, y=tpr, colour = "Support Vector Machine")) +
       geom_line(data = roc_glm.data, aes(x=fpr, y=tpr, colour = "Régression Logistique")) + 
       geom_line(data = roc_rf.data, aes(x = fpr, y=tpr, colour = "Random Forest")) +
       geom_line(data = roc_gb.data, aes(x = fpr, y=tpr, colour = "Gradient Boosting")) +
+      geom_line(data = roc_svm.data, aes(x = fpr, y=tpr, colour = "Support Vector Machine")) +
       
-      #set LR roc curve
       geom_abline(color = "red", linetype=2) + theme_bw() + 
       scale_colour_manual(name = "Modèles", values = cols) + 
       xlab("Taux de Faux positifs") +
@@ -231,6 +239,7 @@ shinyServer(function(input, output) {
       theme(legend.position = c(0.8, 0.2), 
             legend.text = element_text(size = 15), 
             legend.title = element_text(size = 15))
+
   })
   
 })

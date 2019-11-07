@@ -29,22 +29,20 @@ shinyUI(fluidPage(
   navbarPage("Support Vector Machine",
              tabPanel("Principe"),
              tabPanel("Démonstration",
-                      plotOutput("m_svm", height = 400, width = 500)),
+                      div(plotOutput("m_svm", height = 400, width = 500), align="center")),
   
   
-  navbarPage(" ",
              tabPanel("Comparaison avec d'autres méthodes",
              
              h1("Concurrents"),
              h3("Régression logistique"),
              sidebarLayout(
-               sidebarPanel(
-               ),
+               sidebarPanel(),
                
                mainPanel(
                  "La régression logitique permet de mesurer l’association entre la variable expliquée qualitative et les variables explicatives.",
                  
-                 plotOutput("confusion_RL", height = 400, width = 500)
+                 div(plotOutput("confusion_RL", height = 400, width = 500), align="center")
                  
                )),
              
@@ -61,7 +59,7 @@ shinyUI(fluidPage(
                  
                  textOutput("optimal"),
                  textOutput("selected_param"),
-                 plotOutput("confusion_rf", height = 400, width = 500),
+                 div(plotOutput("confusion_rf", height = 400, width = 500), align="center"),
                  textOutput("erreur_rf")
                )),
              
@@ -69,11 +67,16 @@ shinyUI(fluidPage(
              sidebarLayout(
                sidebarPanel(),
                mainPanel(
-                 plotOutput("m_gb", height = 400, width = 500)
+                 div(plotOutput("m_gb", height = 400, width = 500), align="center")
                )
              ),
              
              
-             h1("Comparaison et conclusion",
-                plotOutput("roc"))
-  )))))
+             h1("Comparaison et conclusion"),
+             sidebarLayout(
+               sidebarPanel(),
+               mainPanel(
+                  div(plotOutput("roc", height=500, width=600), align="center")
+                ))
+        )
+)))
