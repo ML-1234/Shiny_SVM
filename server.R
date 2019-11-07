@@ -120,16 +120,16 @@ shinyServer(function(input, output) {
   # SVM
   ##Modèle
 
-  svm.fit <- reactive({
-    svm(form, data=train_ub, type="C-classification", kernel ="linear", probability = TRUE)})
+  svm.fit <- reactive({svm(form, data=train_ub, type="C-classification", kernel ="linear", probability = TRUE)})
   
   svm.pred <- reactive({predict(svm.fit(), test, probability=TRUE)})
   
+  cmsvm <- reactive({pred <- svm.pred()
+                     confusionMatrix(test$Class, pred)})
+  
   ##Matrice de confusion
   output$m_svm <- renderPlot({
-    pred <- svm.pred()
-    cmsvm <- confusionMatrix(test$Class, pred)
-    draw_confusion_matrix(cmsvm, cols[1])
+    draw_confusion_matrix(cmsvm(), cols[1])
   })
   
   
@@ -138,11 +138,12 @@ shinyServer(function(input, output) {
   glm.fit <- reactive({glm(Class~.,data=train_ub,family="binomial")})
   glm.prob <- reactive({predict(glm.fit(), test, type="response")})
   
+  cmrl <- reactive({glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
+                    confusionMatrix(test$Class, glm.pred)})
+  
   ##Matrice de confusion
   output$confusion_RL <- renderPlot({
-    glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
-    cmrl <- confusionMatrix(test$Class, glm.pred)
-    draw_confusion_matrix(cmrl, cols[2])
+    draw_confusion_matrix(cmrl(), cols[2])
   })
   
   
@@ -162,9 +163,7 @@ shinyServer(function(input, output) {
   })
   
   ##Matrice de confusion
-  output$confusion_rf <- renderPlot({
-    draw_confusion_matrix(cmrf(), cols[4])
-  })
+  output$confusion_rf <- renderPlot({draw_confusion_matrix(cmrf(), cols[4])})
   
   output$erreur_rf <- renderText({
     taux_erreur <- paste(round((1 - sum(diag(cmrf()$table))/sum(cmrf()$table))*100, 3),"%")
@@ -180,17 +179,14 @@ shinyServer(function(input, output) {
   
   boost.pred <- reactive({predict(boost.fit(), newdata=test, type="response", n.trees=5000)})
   
-  
-  ##Matrice de confusion
-  output$m_gb <- renderPlot({
+  cmgb <- reactive({
     boost.pred.class <- factor(ifelse(boost.pred()>0.5, 1,0))
-    
     test$Class <- as.factor(test$Class)
     train_ub$Class <- as.factor(train_ub$Class)
-    cmgb <- confusionMatrix(test$Class, boost.pred.class)
-    draw_confusion_matrix(cmgb, cols[5])
-    
-  })
+    confusionMatrix(test$Class, boost.pred.class)})
+  
+  ##Matrice de confusion
+  output$m_gb <- renderPlot({draw_confusion_matrix(cmgb(), cols[5])})
   
   
   
