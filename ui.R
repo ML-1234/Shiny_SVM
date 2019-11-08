@@ -6,8 +6,10 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
   # Titre de l'application
   h1(strong("Support Vector Machine")),
   h2(em("Démonstrateur et Comparateur")),
+  navbarPage("Sommaire",
   
-  navbarPage("Préambule",
+  tabPanel("Préambule",
+           tabsetPanel(
              tabPanel("Présentation de l'application"),
              tabPanel("Notice d'utilisation à télécharger",
                       sidebarLayout(
@@ -19,23 +21,29 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                         
                         mainPanel("Notice d'utilisation",
                                   includeMarkdown("Notice.Rmd")) )
-             )),
+             ))),
   
   
-  navbarPage("Base de données",
+  tabPanel("Base de données",
+           tabsetPanel(
              tabPanel("Présentation"),
-             tabPanel("Traitement")),
+             tabPanel("Traitement"))),
   
   
-  navbarPage("Support Vector Machine",
+  tabPanel("Support Vector Machine",
+           tabsetPanel(
              tabPanel("Principe"),
-             tabPanel("Démonstration",
-                      div(plotOutput("m_svm", height = 400, width = 500), align="center")),
-  
-  
-             tabPanel("Comparaison avec d'autres méthodes",
+             tabPanel("Démonstration et Comparaison",
+             h1("Application de la méthode des SVM"),
+             sidebarLayout(
+               sidebarPanel(),
+               
+               mainPanel(
+                      div(plotOutput("m_svm", height = 400, width = 500), align="center")
+                      )),
+
              
-             h1("Concurrents"),
+             h1("Méthodes concurrentes"),
              h3("Régression logistique"),
              sidebarLayout(
                sidebarPanel(),
@@ -76,5 +84,5 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
              h1("Comparaison et conclusion"),
              div(plotOutput("roc", height=500, width=600), align="center"),
              div(tableOutput("ma_table"),align="center")
-        )
-)))
+        ))
+))))
