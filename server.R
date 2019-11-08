@@ -235,7 +235,7 @@ shinyServer(function(input, output) {
       geom_line(data = roc_gb.data, aes(x = fpr, y=tpr, colour = "Gradient Boosting")) +
       geom_line(data = roc_svm.data, aes(x = fpr, y=tpr, colour = "Support Vector Machine")) +
       
-      geom_abline(color = "red", linetype=2) + theme_bw() + 
+      geom_abline(color = "darkgrey", linetype=2) + theme_bw() + 
       scale_colour_manual(name = "Modèles", values = cols) + 
       xlab("Taux de Faux positifs") +
       ylab("Taux de Vrais positifs") +
@@ -277,6 +277,6 @@ shinyServer(function(input, output) {
     df
     
     
-  },digits=4,rownames=TRUE,width=600) 
+  },digits=4, striped = TRUE, bordered = TRUE, rownames=TRUE,width=600) 
   
 })

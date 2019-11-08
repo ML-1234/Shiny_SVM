@@ -1,6 +1,7 @@
 library(shiny)
+library(shinythemes)
 
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = shinytheme("flatly"),
   
   # Titre de l'application
   h1(strong("Support Vector Machine")),
@@ -73,11 +74,7 @@ shinyUI(fluidPage(
              
              
              h1("Comparaison et conclusion"),
-             sidebarLayout(
-               sidebarPanel(),
-               mainPanel(
-                  div(plotOutput("roc", height=500, width=600), align="center"),
-                  div(tableOutput("ma_table"),align="center")
-                ))
+             div(plotOutput("roc", height=500, width=600), align="center"),
+             div(tableOutput("ma_table"),align="center")
         )
 )))
