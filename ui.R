@@ -76,7 +76,8 @@ shinyUI(fluidPage(
              sidebarLayout(
                sidebarPanel(),
                mainPanel(
-                  div(plotOutput("roc", height=500, width=600), align="center")
+                  div(plotOutput("roc", height=500, width=600), align="center"),
+                  div(tableOutput("ma_table"),align="center")
                 ))
         )
 )))
