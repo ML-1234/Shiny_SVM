@@ -10,7 +10,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
   
   tabPanel("Préambule",
            tabsetPanel(
-             tabPanel("Présentation de l'application"),
+             tabPanel("Présentation de l'application",
+                      htmlOutput("pre")),
              tabPanel("Notice d'utilisation à télécharger",
                       sidebarLayout(
                         sidebarPanel(
@@ -32,7 +33,20 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
   
   tabPanel("Support Vector Machine",
            tabsetPanel(
-             tabPanel("Principe"),
+                tabPanel("Principe",
+                                                 htmlOutput("intro"),
+                                                 
+                                                 div(plotOutput("plot_linear", height = 400, width = 500), align="center"),
+                                                 
+                                                 htmlOutput("vs"),
+                                                 div(plotOutput("plot_linear_SVM", height = 400, width = 500),align="center"),
+                                                 
+                                                 htmlOutput("cout"),
+                                                 div(plotOutput("plot_almostlinear_SVM", height = 400, width = 500), align="center"),
+                                                 htmlOutput("vr"),
+                                                 div(plotOutput("plot_radial_SVM", height = 400, width = 500), align="center"),
+                                                 htmlOutput("fin")
+                                        ),
              tabPanel("Démonstration et Comparaison",
              h1("Application de la méthode des SVM"),
              sidebarLayout(
