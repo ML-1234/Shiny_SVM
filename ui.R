@@ -4,7 +4,7 @@ library(shinythemes)
 shinyUI(fluidPage(theme = shinytheme("flatly"),
   
   # Titre de l'application
-  titlePanel(img(src="arr4.png", width="100%")),
+  titlePanel(img(src="En-tête.png", width="100%")),
   navbarPage("Sommaire",
   
   tabPanel("Préambule",
