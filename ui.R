@@ -71,7 +71,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                    sidebarPanel(),
                                                    
                                                    mainPanel(
-                                                     "La régression logitique permet de mesurer l’association entre la variable expliquée qualitative et les variables explicatives.",
+                                                     "La régression logitique permet de mesurer l’association entre la variable expliquée qualitative et les variables explicatives.
+                                                     Chacune des variables explicatives va être pondérée par son coefficient trouvé afin de donner au final la meilleure prédiction.",
                                                      
                                                      div(plotOutput("confusion_RL", height = 400, width = 500), align="center")
                                                      
@@ -101,6 +102,12 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                      sliderInput("skrinkage", "Paramètre de lissage",min=0,max=1,value=0.5)
                                                    ),
                                                    mainPanel(
+                                                     "La méthode du Gradient Boosting consiste à utiliser plusieurs modèles que nous agrégeons ensuite pour obtenir un seul résultat. 
+                                                     Dans  la construction des modèles, le Boosting commence par construire un premier modèle qu’il va évaluer. 
+                                                     A partir de cette mesure, chaque individu va être pondéré en fonction de la performance de la prédiction. 
+                                                     L’objectif est de donner un poids plus important aux individus pour lesquels la valeur a été mal prédite pour la construction du modèle suivant. 
+                                                     Le fait de corriger les poids au fur et à mesure permet de mieux prédire les valeurs difficiles.",
+                                                     
                                                      htmlOutput("optimal_gb"),
                                                      div(plotOutput("m_gb", height = 400, width = 500), align="center")
                                                    )
