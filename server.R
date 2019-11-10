@@ -45,8 +45,8 @@ draw_confusion_matrix <- function(cm, color) {
   text(195, 435, 'Pas de défaut', cex=1.2)
   rect(250, 430, 340, 370, col='white')
   text(295, 435, 'Défaut', cex=1.2)
-  text(125, 370, 'Observation', cex=1.3, srt=90, font=2)
-  text(245, 450, 'Prédiction', cex=1.3, font=2)
+  text(125, 370, 'Prédiction', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Observation', cex=1.3, font=2)
   rect(150, 305, 240, 365, col='white')
   rect(250, 305, 340, 365, col=color)
   text(140, 400, 'Pas de défaut', cex=1.2, srt=90)
@@ -261,7 +261,7 @@ output$pre <- renderText({
   svm.pred <- reactive({predict(svm.fit(), test, probability=TRUE)})
   
   cmsvm <- reactive({pred <- svm.pred()
-                     confusionMatrix(test$Class, pred)})
+                     confusionMatrix(pred, test$Class)})
   
   ##Matrice de confusion
   output$m_svm <- renderPlot({
@@ -280,7 +280,7 @@ output$pre <- renderText({
   glm.prob <- reactive({predict(glm.fit(), test, type="response")})
  
   cmrl <- reactive({glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
-  confusionMatrix(test$Class, glm.pred)})
+  confusionMatrix(glm.pred, test$Class)})
    
   ##Matrice de confusion
   output$confusion_RL <- renderPlot({
@@ -293,7 +293,7 @@ output$pre <- renderText({
   ## Modèle et matrice simple
   rf.fit <- reactive({randomForest(form,train_ub, mtry=input$mtry,ntree=input$ntree)})
   rf.pred <- reactive({predict(rf.fit(),test,type="response")})
-  cmrf <- reactive({confusionMatrix(test$Class, rf.pred())})
+  cmrf <- reactive({confusionMatrix(rf.pred(), test$Class)})
   
   output$selected_param <- renderText({ 
     paste( "Vous avez choisi le nombre de feuilles égales à", input$mtry, "et un nombre d'arbres égal à", input$ntree,". <br> <br>")
@@ -324,7 +324,7 @@ output$pre <- renderText({
     boost.pred.class <- factor(ifelse(boost.pred()>0.5, 1,0))
     test$Class <- as.factor(test$Class)
     train_ub$Class <- as.factor(train_ub$Class)
-    confusionMatrix(test$Class, boost.pred.class)})
+    confusionMatrix(boost.pred.class, test$Class)})
   
   ##Matrice de confusion
   output$m_gb <- renderPlot({draw_confusion_matrix(cmgb(), cols[5])})
