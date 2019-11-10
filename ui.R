@@ -79,8 +79,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                  "La forêt aléatoire (ou Random Forest) est constituée d'un grand nombre d'arbres de décision individuels qui sont construits sur des échantillons différents.
                                      Chaque arbre individuel de la forêt prévoit le non-défaut ou le défaut (0 ou 1) et la classe majoritaire devient la prédiction de notre modèle.",
                  
-                 textOutput("optimal"),
-                 textOutput("selected_param"),
+                 htmlOutput("optimal"),
+                 htmlOutput("selected_param"),
                  div(plotOutput("confusion_rf", height = 400, width = 500), align="center"),
                  textOutput("erreur_rf")
                )),
