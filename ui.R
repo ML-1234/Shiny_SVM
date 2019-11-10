@@ -4,8 +4,7 @@ library(shinythemes)
 shinyUI(fluidPage(theme = shinytheme("flatly"),
   
   # Titre de l'application
-  h1(strong("Support Vector Machine")),
-  h2(em("Démonstrateur et Comparateur")),
+  titlePanel(img(src="arr4.png", width="100%")),
   navbarPage("Sommaire",
   
   tabPanel("Préambule",
