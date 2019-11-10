@@ -79,7 +79,7 @@ draw_confusion_matrix <- function(cm, color) {
 #Fonction taux d'erreur
 erreur<-function(matrice){
   paste(round((matrice$table[[2]]+matrice$table[[3]])/sum(matrice$table)*100, 3),"%")
-
+  
 }
 
 
@@ -106,11 +106,11 @@ ntree_opt <- ntr[which.min(taux_erreur_ntree)]
 
 shinyServer(function(input, output) {
   
-output$pre <- renderText({
-    paste( "Dans le cadre de notre cursus universitaire, nous avons mis en place un démonstrateur sous R Shiny afin de montrer l'implémentation 
-           et les performances des machines à vecteurs de support dans la détection des transactions frauduleuses commises sur les cartes de crédit.<br>
-           Avant de commencer, il est important pour nous de remercier M. HURLIN, créateur de ce projet et professeur de SVM, M. DELSOL, professeur de R Shiny ainsi que  M. DUDEK pour son intervention sur le déploiement d'applications Shiny sous Github.<br>
-           Dès à présent, afin de comprendre le fonctionnement de ce démonstrateur, nous vous invitons à télécharger la notice située dans l'onglet suivant.")
+  output$pre <- renderText({
+    paste( "<br> <br> Dans le cadre de notre cursus universitaire, nous avons mis en place un démonstrateur sous R Shiny afin de montrer l'implémentation 
+           et les performances des machines à vecteurs de support dans la détection des transactions frauduleuses commises sur les cartes de crédit.<br> <br>
+           Avant de commencer, il est important pour nous de remercier M. HURLIN, créateur de ce projet et professeur de SVM, M. DELSOL, professeur de R Shiny ainsi que  M. DUDEK pour son intervention sur le déploiement d'applications Shiny sous Github.<br> <br>
+           Dès à présent, afin de comprendre le fonctionnement de ce démonstrateur, nous vous invitons à télécharger la notice située dans l'onglet suivant.<br> ")
   })
   
   
@@ -134,14 +134,20 @@ output$pre <- renderText({
   
   
   output$intro <- renderText({
-    paste( "Les <b>Support Vector Machines</b> (SVM) représentent une méthode statistique développée dans les années 1990.<br> 
-           Cette méthode est destinée à résoudre des problèmes de classification puisqu’elle va permettre de déterminer si un élément appartient ou non à une classe.<br>
+    paste( "<br> <br>
+           Les <b>Support Vector Machines</b> (SVM) représentent une méthode statistique développée dans les années 1990.<br> 
+           Cette méthode est destinée à résoudre des problèmes de classification puisqu’elle va permettre de déterminer si un élément appartient ou non à une classe.<br> <br>
+           ")
+  })
+  
+  output$intro2 <- renderText({
+    paste( "<br>
            Pour mieux comprendre son fonctionnement, il est utile de s’intéresser à sa représentation graphique.
            Pour cela, on dispose d’un ensemble de données. <br>
            Notre but va être de chercher à les séparer en deux groupes distincts. <br>
            Un groupe représente ainsi la survenance de l’évènement (prévision 1) et l’autre la non-survenance (prévision 0). <br>
            Cette séparation linéaire va se faire à l’aide d’une frontière appelée <b>hyperplan</b>.
-           <br>")
+           <br> <br>  <br> ")
   })
   #Bdd linéairement séparable
   n <- 500
@@ -169,7 +175,7 @@ output$pre <- renderText({
            Pour le trouver, il suffit de chercher l’hyperplan pour lequel la distance entre la frontière des deux groupes et l’observation la plus proche est maximale. <br>
            
            Le double de cette distance est appelée <b>marge</b>. On parlera donc de maximisation de la marge. <br>
-           Il en résulte que les observations les plus proches de la frontière, appelées <b> vecteurs de supports </b>, sont les points situés sur la marge.<br>")
+           Il en résulte que les observations les plus proches de la frontière, appelées <b> vecteurs de supports </b>, sont les points situés sur la marge.<br> <br>  <br> ")
   })
   
   output$plot_linear_SVM <- renderPlot({
@@ -188,9 +194,13 @@ output$pre <- renderText({
   #Bdd presque linéairement séparable
   
   output$cout <- renderText({
-    paste( "Cependant, il arrive souvent que l’on soit face à des échantillons non linéairement séparables.<br> 
-           Dans cette situation, deux cas de figure apparaissent. <br> <br>
-           Le premier est que la séparation optimale reste linéaire malgré le fait que quelques observations ne puissent pas être correctement classées.<br>")
+    paste( " <br>  Cependant, il arrive souvent que l’on soit face à des échantillons non linéairement séparables.
+           Dans cette situation, deux cas de figure apparaissent. <br> <br> ")
+  })
+  
+  output$cout2 <- renderText({
+    paste( "<br>  
+           Le premier est que la séparation optimale reste linéaire malgré le fait que quelques observations ne puissent pas être correctement classées. <br>  <br> ")
   })
   
   output$plot_almostlinear_SVM <- renderPlot({
@@ -220,10 +230,12 @@ output$pre <- renderText({
            Dans ce cas, on fait face à un risque de <b>sur-apprentissage</b>. <br>
            Dans la situation inverse, lorsque le coût est faible, la priorité est donnée à la maximisation de la marge, au préjudice de la minimisation du nombre d’erreurs de classification. 
            On est alors face à un risque de <b>sous-apprentissage</b>.  <br>
-           L'objectif est alors de trouver un arbitrage entre l’optimisation de la marge et le nombre d'erreurs de classification. <br> <br>
-           
-           
-           Le deuxième cas de figure apparaît lorsque l’échantillon n’est pas linéairement séparable.<br>")
+           L'objectif est alors de trouver un arbitrage entre l’optimisation de la marge et le nombre d'erreurs de classification. <br> <br>")
+  })
+  
+  output$vr2 <- renderText({
+    paste( "
+           Le deuxième cas de figure apparaît lorsque l’échantillon n’est pas linéairement séparable.<br> <br> ")
   })
   #Bdd radialement séparable
   
@@ -244,24 +256,23 @@ output$pre <- renderText({
     
   })
   output$fin <- renderText({
-    paste( "Ici on constate que la séparation linéaire n’est pas possible.<br> 
+    paste( "<br> Ici on constate que la séparation linéaire n’est pas possible.<br> 
            Afin de trouver la séparation optimale on va alors chercher à <b>transformer l’espace de représentation des données d’entrée</b> en un espace de plus grandes dimensions en rajoutant des variables explicatives créées à partir de la transformation des variables initiales.<br>
-           Cette transformation se fait à l’aide d’une fonction appelée <b>fonction noyau</b> qui est très utile puisque l’on n’a pas besoin de connaître la transformation à appliquer.<br>
+           Cette transformation se fait à l’aide des <b>fonctions kernels</b>. Elles sont très utile puisque l’on n’a pas besoin de connaître la transformation à appliquer.<br>
            Dans ce nouvel espace de plus grande dimension, il sera alors plus probable de trouver une séparation linéaire. <br> 
            <br> <br> <br>")
     
   })
   
-  
   # SVM
   ##Modèle
-
+  
   svm.fit <- reactive({svm(form, data=train_ub, type="C-classification", kernel ="linear", probability = TRUE)})
   
   svm.pred <- reactive({predict(svm.fit(), test, probability=TRUE)})
   
   cmsvm <- reactive({pred <- svm.pred()
-                     confusionMatrix(pred, test$Class)})
+  confusionMatrix(pred, test$Class)})
   
   ##Matrice de confusion
   output$m_svm <- renderPlot({
@@ -278,10 +289,10 @@ output$pre <- renderText({
   
   glm.fit <- reactive({glm(form,data=dataRL,family="binomial")})
   glm.prob <- reactive({predict(glm.fit(), test, type="response")})
- 
+  
   cmrl <- reactive({glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
   confusionMatrix(glm.pred, test$Class)})
-   
+  
   ##Matrice de confusion
   output$confusion_RL <- renderPlot({
     draw_confusion_matrix(cmrl(), cols[2])
@@ -315,8 +326,8 @@ output$pre <- renderText({
   # Gradient Boosting
   ##Modèle
   boost.fit <- reactive({train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-                     test$Class <- ifelse(test$Class==1, 1,0)
-                     gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)})
+  test$Class <- ifelse(test$Class==1, 1,0)
+  gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)})
   
   boost.pred <- reactive({predict(boost.fit(), newdata=test, type="response", n.trees=5000)})
   
@@ -361,7 +372,7 @@ output$pre <- renderText({
     perf_rf <- ROCR::performance(ROCRpred_rf, 'tpr','fpr') 
     roc_rf.data <- data.frame(fpr=unlist(perf_rf@x.values),
                               tpr=unlist(perf_rf@y.values), model="Random Forest")
-
+    
     ##Ensemble
     ggplot() + 
       geom_line(data = roc_glm.data, aes(x=fpr, y=tpr, colour = "Régression Logistique")) + 
@@ -376,7 +387,7 @@ output$pre <- renderText({
       theme(legend.position = c(0.8, 0.2), 
             legend.text = element_text(size = 15), 
             legend.title = element_text(size = 15))
-
+    
   })
   output$ma_table <- renderTable({
     #Régression logistique
@@ -413,4 +424,4 @@ output$pre <- renderText({
     
   },digits=4, striped = TRUE, bordered = TRUE, rownames=TRUE,width=600) 
   
-})
+  })
