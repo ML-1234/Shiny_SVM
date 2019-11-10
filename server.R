@@ -9,6 +9,7 @@ library(ggplot2)
 library(corrplot)
 library(ROCR)
 library(gbm)
+library(xgboost)
 
 ####Base de données####
 bdd <- read.csv("creditcard.csv")
@@ -98,7 +99,20 @@ for(j in ntr){
 }
 ntree_opt <- ntr[which.min(taux_erreur_ntree)]
 
+#Optimisation du Gradient Boosting
+xgb_model = train(TrainData, TrainClasses, trControl = trainControl(method = "cv"), method = "xgbTree")
+best_gb=xgb_model$bestTune
 
+TrainData=as.matrix(TrainData)
+TrainClasses=as.matrix(TrainClasses)
+boost.fit <- xgboost(data=TrainData,label=TrainClasses, eta=best_gb[[3]],nrounds=best_gb[[1]], max_depth=best_gb[[2]],
+                     colsample_bytree=best_gb[[5]],subsample=best_gb[[7]],min_child_weight=best_gb[[6]],gamma=best_gb[[4]],verbose=0)
+boost.pred <- predict(boost.fit, newdata=as.matrix(test[,-31]))
+prediction <- as.numeric(boost.pred > 0.5)
+boost.pred.class <- factor(ifelse(boost.pred>0.5, 1,0))
+err_gb=mean(boost.pred.class!=test$Class)
+shrinkage_opt=best_gb[[3]]
+max_prof_opt=best_gb[[2]]
 
 
 
@@ -321,17 +335,24 @@ shinyServer(function(input, output) {
   
   # Gradient Boosting
   ##Modèle
-  boost.fit <- reactive({train_ub$Class <- ifelse(train_ub$Class==1, 1,0)
-  test$Class <- ifelse(test$Class==1, 1,0)
-  gbm(form, data=train_ub, distribution="bernoulli", n.trees=5000)})
+  boost.fit <- reactive({boost.fit <- xgboost(data=TrainData,label=TrainClasses, eta=input$skrinkage,nrounds=best_gb[[1]], max_depth=input$max_prof,
+                                              colsample_bytree=best_gb[[5]],subsample=best_gb[[7]],min_child_weight=best_gb[[6]],gamma=best_gb[[4]],verbose=0)})
   
-  boost.pred <- reactive({predict(boost.fit(), newdata=test, type="response", n.trees=5000)})
+  boost.pred <- reactive({predict(boost.fit(), newdata=as.matrix(test[,-31]))})
   
   cmgb <- reactive({
     boost.pred.class <- factor(ifelse(boost.pred()>0.5, 1,0))
     test$Class <- as.factor(test$Class)
     train_ub$Class <- as.factor(train_ub$Class)
-    confusionMatrix(boost.pred.class, test$Class)})
+    confusionMatrix(test$Class, boost.pred.class)})
+  
+  #Texte optimal
+  output$optimal_gb <- renderText(
+    paste( "Les paramètres optimaux qui permettent de minimiser le taux d'erreur sont de", max_prof_opt, "pour la profondeur maximale de l'arbre et de",shrinkage_opt, "pour le paramètre de lissage. <br> <br>")
+  )
+  ##Matrice de confusion
+  output$m_gb <- renderPlot({draw_confusion_matrix(cmgb(), cols[5])})
+  
   
   ##Matrice de confusion
   output$m_gb <- renderPlot({draw_confusion_matrix(cmgb(), cols[5])})

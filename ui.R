@@ -96,11 +96,16 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                  
                                                  h3("Gradient Boosting"),
                                                  sidebarLayout(
-                                                   sidebarPanel(),
+                                                   sidebarPanel(
+                                                     sliderInput("max_prof","Profondeur maximale de l'arbre", min=1, max=20,value=5),
+                                                     sliderInput("skrinkage", "Paramètre de lissage",min=0,max=1,value=0.5)
+                                                   ),
                                                    mainPanel(
+                                                     htmlOutput("optimal_gb"),
                                                      div(plotOutput("m_gb", height = 400, width = 500), align="center")
                                                    )
                                                  ),
+                                                 
                                                  
                                                  
                                                  h1("Comparaison et conclusion"),
