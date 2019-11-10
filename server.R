@@ -271,12 +271,17 @@ output$pre <- renderText({
   
   # Régression logistique
   ##Modèle
-  glm.fit <- reactive({glm(Class~.,data=train_ub,family="binomial")})
+  
+  RL <- ubBalance(X, Y, type="ubUnder", positive=1, perc=2, method="percUnder")
+  dataRL<-as.data.frame(cbind(RL$X, RL$Y))
+  colnames(dataRL)[colnames(dataRL)=="RL$Y"] <- "Class"
+  
+  glm.fit <- reactive({glm(form,data=dataRL,family="binomial")})
   glm.prob <- reactive({predict(glm.fit(), test, type="response")})
-  
+ 
   cmrl <- reactive({glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
-                    confusionMatrix(test$Class, glm.pred)})
-  
+  confusionMatrix(test$Class, glm.pred)})
+   
   ##Matrice de confusion
   output$confusion_RL <- renderPlot({
     draw_confusion_matrix(cmrl(), cols[2])
