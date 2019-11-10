@@ -11,7 +11,7 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                       tabsetPanel(
                                         
                                         tabPanel("Présentation de l'application",
-                                                 div(htmlOutput("pre",align="justified",width=500,height = 400,style="width: 90%"))),
+                                                 div(htmlOutput("pre",align="justified",width=500,height = 400,style="margin:5%"))),
                                        
                                         tabPanel("Notice d'utilisation à télécharger",
                                                  sidebarLayout(
@@ -35,25 +35,25 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                              tabPanel("Support Vector Machine",
                                       tabsetPanel(
                                         tabPanel("Principe",
-                                                 htmlOutput("intro",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("intro",align="justified",width=500,height = 400,style="margin:5%"),
                                                  h4(em("CAS LINEAIREMENT SEPARABLE"),align="center"),
-                                                 htmlOutput("intro2",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("intro2",align="justified",width=500,height = 400,style="margin:5%"),
                                                  
                                                  div(plotOutput("plot_linear", height = 300, width = 400), align="center"),
                                                  
-                                                 htmlOutput("vs",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("vs",align="justified",width=500,height = 400,style="margin:5%"),
                                                  div(plotOutput("plot_linear_SVM", height = 300, width = 400),align="center"),
                                                  
-                                                 htmlOutput("cout",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("cout",align="justified",width=500,height = 400,style="margin:5%"),
                                                  h4(em("CAS PRESQUE LINEAIREMENT SEPARABLE"),align="center"),
-                                                 htmlOutput("cout2",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("cout2",align="justified",width=500,height = 400,style="margin:5%"),
                                                  div(plotOutput("plot_almostlinear_SVM", height = 300, width = 400), align="center"),
                                                  
-                                                 htmlOutput("vr",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("vr",align="justified",width=500,height = 400,style="margin:5%"),
                                                  h4(em("CAS NON LINEAIREMENT SEPARABLE"),align="center"),
-                                                 htmlOutput("vr2",align="justified",width=500,height = 400,style="width: 90%"),
+                                                 htmlOutput("vr2",align="justified",width=500,height = 400,style="margin:5%"),
                                                  div(plotOutput("plot_radial_SVM", height = 300, width = 400), align="center"),
-                                                 htmlOutput("fin",align="justified",width=500,height = 400,style="width: 90%")
+                                                 htmlOutput("fin",align="justified",width=500,height = 400,style="margin:5%")
                                         ),
                                         tabPanel("Démonstration et Comparaison",
                                                  h1("Application de la méthode des SVM"),
