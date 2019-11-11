@@ -23,7 +23,7 @@ test <- bdd[-idx, ]
 
 X <- train[,-ncol(train)]
 Y <- train$Class
-newData <- ubBalance(X, Y, type="ubUnder", positive=1, perc=0.3, method="percUnder")
+newData <- ubBalance(X, Y, type="ubUnder", positive=1, perc=8, method="percPos")
 train_ub <- as.data.frame(cbind(newData$X, newData$Y))
 colnames(train_ub)[colnames(train_ub)=="newData$Y"] <- "Class"
 
@@ -318,11 +318,7 @@ shinyServer(function(input, output) {
   # Régression logistique
   ##Modèle
   
-  RL <- ubBalance(X, Y, type="ubUnder", positive=1, perc=2, method="percUnder")
-  dataRL<-as.data.frame(cbind(RL$X, RL$Y))
-  colnames(dataRL)[colnames(dataRL)=="RL$Y"] <- "Class"
-  
-  glm.fit <- reactive({glm(form,data=dataRL,family="binomial")})
+  glm.fit <- reactive({glm(form,data=train_ub,family="binomial")})
   glm.prob <- reactive({predict(glm.fit(), test, type="response")})
   
   cmrl <- reactive({glm.pred <- factor(ifelse(glm.prob()>0.5, 1,0))
