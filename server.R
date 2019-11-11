@@ -29,7 +29,22 @@ colnames(train_ub)[colnames(train_ub)=="newData$Y"] <- "Class"
 
 
 ####Fonctions#####
-### Couleur des modèles ###
+### Fonction des P-values des corrélations ###
+cor.mtest <- function(mat, ...) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat<- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], ...)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  p.mat
+}
+
 ### Couleur des modèles ###
 cols <- c('Support Vector Machine'= '#6A4A3C', 'Régression Logistique'= '#00A0B0', 'KNN' = '#CC333F', 'Random Forest'= '#EB6841', 'Gradient Boosting' = '#EDC951')
 
@@ -441,5 +456,76 @@ shinyServer(function(input, output) {
     
     
   },digits=4, striped = TRUE, bordered = TRUE, rownames=TRUE,width=600) 
+  
+  output$p1 <- renderText({paste("\n", "&nbsp; &nbsp; Dans la base de données </em> creditcard </em>, les cas de défaut ne représentent que 0.1727486% des observations.
+                                       Nos données sont donc largement asymétriques, comme nous le montre le graphique suivant,
+                                       dans lequel la colonne des cas de défaut est presque invisible.", "\n","\n",
+                                 sep="<br/> ")})
+  
+  
+  output$g1 <- renderPlot({ggplot(bdd, aes(Class)) + geom_bar(fill = c("#0073C2FF","#ffa500")) +
+      labs(x = " ", y = " ") + 
+      scale_x_discrete(labels=c("Non-défaut", "Défaut")) +
+      theme(plot.title = element_text(hjust = 0.5, size = 20, face = "italic"))})
+  
+  
+  output$p2a <- renderText({paste("\n", "&nbsp; &nbsp; Lors de la modélisation, l’asymétrie des données peut fausser le résultat. 
+                                                     En effet, la classification repose sur un mécanisme de minimisation du taux d’erreur et sur une hypothèse de bonne 
+                                                     représentation de la population, mais le manque d’observations de la classe minoritaire ne donne pas assez d’informations au modèle
+                                                     pour bien apprendre de ces données.",
+                                  "\n","&nbsp; &nbsp; Ainsi, il pourra avoir un très bon taux d'exactitude en classant tous les individus dans la classe largement majoritaire.",
+                                  "\n","&nbsp; &nbsp; On aura donc à la fois un problème de représentativité de la population par l’échantillon et avec l’aspect minimiseur 
+                                               du taux d’erreur de l’algorithme du modèle en lui-même.",
+                                  "\n","&nbsp; &nbsp; Il se dessine alors deux méthodes de traitement des données asymétriques : changer l’algorithme ou rééquilibrer les données 
+                                               en utilisant des « stratégies d’échantillonnage ». C’est cette dernière technique que nous avons choisi de développer ici.",
+                                  "\n","Dans les stratégies d’échantillonnage, il existe deux manières de procéder :",
+                                  sep="<br/> ")})
+  
+  output$p2b <- renderText({paste("&nbsp;- Le sur-échantillonnage : consiste à augmenter le nombre d’observations de la classe minoritaire en créant 
+                                                         des observations artificielles.",
+                                  "&nbsp;- Le sous-échantillonnage : enlève des observations de la classe majoritaire. 
+                                                         Le choix des observations à supprimer peut se faire aléatoirement ou selon des critères spécifiques.",
+                                  sep="<br/> ")})
+  
+  output$p2c <- renderText({paste("\n","&nbsp; &nbsp; En général, le sur-échantillonnage est préféré car il ne suppose pas la perte d’une partie des données, 
+                                               mais le sous-apprentissage peut aussi aider lorsque l’échantillon est considéré trop large.",
+                                  "\n","&nbsp; &nbsp; Afin de ne pas surmener l’application Shiny, nous avons préféré appliquer la méthode de sous-échantillonnage, 
+                                               et garder ainsi un échantillon d’apprentissage avec moins d’observations.", 
+                                  sep="<br/> ")})
+  
+  
+  output$p3 <- renderText({paste("\n", "&nbsp; &nbsp; Avant d’appliquer un quelconque traitement sur nos données, nous avons extrait de la base de données un échantillon 
+                                                     de validation, afin de pouvoir vérifier la classification sur un échantillon qui a gardé l’asymétrie d’origine. ",
+                                 "\n", "&nbsp; &nbsp; Toujours dans l’objectif de garder une application la plus fluide possible, nous avons retenu la méthode de 
+                                                     sous-échantillonnage la plus simple : le sous-échantillonnage aléatoire, qui retire aléatoirement des observations de la classe majoritaire.",
+                                 "\n", "&nbsp; &nbsp; Afin de garder un nombre significatif d’observations ainsi que le caractère asymétrique de la base de données initiale 
+                                                     dans l’échantillon, nous avons arbitrairement choisi de d’augmenter à 8% la part de de cas de défaut dans l’échantillon d’apprentissage.", 
+                                 sep="<br/> ")})
+  
+  
+  output$p4 <- renderText({paste("\n", "&nbsp; &nbsp; La nouvelle base a", nrow(train_ub), "observations dont", sum(train_ub$Class==1), "cas de défaut et",sum(train_ub$Class==0), "cas de non-défaut.",  "\n","\n")})
+  
+  
+  output$g4 <- renderPlot({ggplot(train_ub, aes(Class)) + geom_bar(fill = c("#0073C2FF","#ffa500")) +
+      labs(x = " ", y = " ") + 
+      scale_x_discrete(labels=c("Non-défaut", "Défaut")) +
+      theme(plot.title = element_text(hjust = 0.5, size = 20, face = "italic"))})
+  
+  
+  output$sum2 <- renderPrint({summary(train_ub[,as.numeric(input$var2)])})
+  
+  output$box2 <- renderPlot({
+    x<-summary(train_ub[,as.numeric(input$var2)])
+    boxplot(x,horizontal=TRUE,col="brown",main=names(train_ub[,as.numeric(input$var2)]))
+    #Dboxplot(x,col="sky blue",border="purple",main=names(train_ub[,as.numeric(input$var1)]))
+  })
+  
+  output$cor2 <- renderPlot({
+    train_ub_corr <- as.data.frame(lapply(train_ub, as.numeric))
+    train_ub_M <-cor(train_ub_corr)
+    p.mat <- cor.mtest(train_ub_corr)
+    
+    corrplot(train_ub_M, type="upper", p.mat = p.mat, sig.level = 0.05)
+  })
   
   })
