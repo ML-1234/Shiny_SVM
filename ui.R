@@ -106,7 +106,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                    sidebarPanel(
                                                      helpText("Choisissez vos paramètres :"),
                                                      radioButtons("noyau","Fonction noyau", choices=c("Linéaire"="linear","Polynomial"="polynomial","Base radiale" ="radial","Sigmoïde"="sigmoid"),selected="linear"),
-                                                     selectInput("cout", "Coût de pénalisation", choices = c(0.125,0.25,0.5,1,2,4,8), selected = 1)
+                                                     selectInput("cout", "Coût de pénalisation", choices = c(0.125,0.25,0.5,1,2,4,8), selected = 1),
+                                                     submitButton("Mise à jour")
                                                    ),
                                                    
                                                    mainPanel(
@@ -138,7 +139,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                    sidebarPanel(
                                                      helpText("Choisissez vos paramètres :"),
                                                      sliderInput("mtry","Nombre de feuilles finales",min=0, max=30, value=15), 
-                                                     sliderInput("ntree","Nombre d'arbres dans la forêt",min=0, max=500, value=250) 
+                                                     sliderInput("ntree","Nombre d'arbres dans la forêt",min=0, max=500, value=250),
+                                                     submitButton("Mise à jour")
                                                    ),
                                                    mainPanel(
                                                      "La forêt aléatoire (ou Random Forest) est constituée d'un grand nombre d'arbres de décision individuels qui sont construits sur des échantillons différents.
@@ -155,7 +157,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                    sidebarPanel(
                                                      helpText("Choisissez vos paramètres :"),
                                                      sliderInput("max_prof","Profondeur maximale de l'arbre", min=1, max=20,value=5),
-                                                     sliderInput("skrinkage", "Paramètre de lissage",min=0,max=1,value=0.5)
+                                                     sliderInput("skrinkage", "Paramètre de lissage",min=0,max=1,value=0.5),
+                                                     submitButton("Mise à jour")
                                                    ),
                                                    mainPanel(
                                                      HTML("La méthode du Gradient Boosting consiste à utiliser plusieurs modèles que nous agrégeons ensuite pour obtenir un seul résultat. <br> <br>
