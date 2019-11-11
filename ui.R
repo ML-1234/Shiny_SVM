@@ -70,6 +70,11 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                    ),
                                                    
                                                    mainPanel(
+                                                     HTML("Comme nous l'avons vu précédemment, les techniques SVM (non linéaires) font appel à une fonction implicite transformant l’espace d’entrée.
+                                                     La méthode requiert donc de sélectionner un noyau dont vous avez le choix. <br> <br>
+                                                     En réalisant les transformations de variables adéquates, on peut ainsi rendre linéairement séparable un problème qui ne l’est pas dans l’espace initial. 
+                                                     Il faut pénaliser les erreurs grâce au coût de pénalisation, plus ou moins fortement selon que l’on veuille plus ou moins coïncider aux données d’apprentissage."),
+                                                    
                                                      htmlOutput("optimal_svm"),
                                                      div(plotOutput("m_svm", height = 400, width = 500), align="center")
                                                    )),
@@ -108,15 +113,16 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                  h3("Gradient Boosting"),
                                                  sidebarLayout(
                                                    sidebarPanel(
+                                                     helpText("Choisissez vos paramètres :"),
                                                      sliderInput("max_prof","Profondeur maximale de l'arbre", min=1, max=20,value=5),
                                                      sliderInput("skrinkage", "Paramètre de lissage",min=0,max=1,value=0.5)
                                                    ),
                                                    mainPanel(
-                                                     "La méthode du Gradient Boosting consiste à utiliser plusieurs modèles que nous agrégeons ensuite pour obtenir un seul résultat. 
-                                                     Dans  la construction des modèles, le Boosting commence par construire un premier modèle qu’il va évaluer. 
-                                                     A partir de cette mesure, chaque individu va être pondéré en fonction de la performance de la prédiction. 
+                                                     HTML("La méthode du Gradient Boosting consiste à utiliser plusieurs modèles que nous agrégeons ensuite pour obtenir un seul résultat. <br> <br>
+                                                     Dans la construction des modèles, le Boosting commence par construire un premier modèle qu’il va évaluer. 
+                                                     A partir de cette mesure, chaque individu va être pondéré en fonction de la performance de la prédiction. <br> 
                                                      L’objectif est de donner un poids plus important aux individus pour lesquels la valeur a été mal prédite pour la construction du modèle suivant. 
-                                                     Le fait de corriger les poids au fur et à mesure permet de mieux prédire les valeurs difficiles.",
+                                                     Le fait de corriger les poids au fur et à mesure permet de mieux prédire les valeurs difficiles."),
                                                      
                                                     div(plotOutput("m_gb", height = 400, width = 500), align="center"),
                                                      htmlOutput("optimal_gb")
