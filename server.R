@@ -114,8 +114,12 @@ err_gb=mean(boost.pred.class!=test$Class)
 shrinkage_opt=best_gb[[3]]
 max_prof_opt=best_gb[[2]]
 
-
-
+#Optimisation du SVM
+train.X=train_ub[,-31]
+train.Y=train_ub[,31]
+SVM.tune <- tune(svm,train.X,train.Y,kernel="linear", ranges=list(cost=2^(-3:3), gamma=2^(-2:2)))
+cost_opt=SVM.tune$best.parameters[[1]]
+gamma_opt=SVM.tune$best.parameters[[2]]  
 
 
 shinyServer(function(input, output) {
@@ -278,17 +282,22 @@ shinyServer(function(input, output) {
   # SVM
   ##Modèle
   
-  svm.fit <- reactive({svm(form, data=train_ub, type="C-classification", kernel ="linear", probability = TRUE)})
+  svm.fit <- reactive({model_svm=svm(form,data=train_ub,type="C-classification",kernel=input$noyau,cost=input$cout,gamma=gamma_opt,probability=TRUE)})
   
   svm.pred <- reactive({predict(svm.fit(), test, probability=TRUE)})
   
   cmsvm <- reactive({pred <- svm.pred()
-  confusionMatrix(pred, test$Class)})
+  confusionMatrix(test$Class, pred)})
   
   ##Matrice de confusion
   output$m_svm <- renderPlot({
     draw_confusion_matrix(cmsvm(), cols[1])
   })
+  
+  output$optimal_svm <- renderText({ 
+    paste( "Le paramètre de coût de pénalisation qui permet de minimiser le taux d'erreur est de", cost_opt,". <br> <br>")
+  })
+  
   
   
   # Régression logistique

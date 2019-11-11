@@ -63,9 +63,14 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                         tabPanel("Démonstration et Comparaison",
                                                  h1("Application de la méthode des SVM"),
                                                  sidebarLayout(
-                                                   sidebarPanel(),
+                                                   sidebarPanel(
+                                                     helpText("Choisissez vos paramètres :"),
+                                                     radioButtons("noyau","Fonction noyau", choices=c("Linéaire"="linear","Polynomial"="polynomial","Base radiale" ="radial","Sigmoïde"="sigmoid"),selected="linear"),
+                                                     selectInput("cout", "Coût de pénalisation", choices = c(0.125,0.25,0.5,1,2,4,8), selected = 1)
+                                                   ),
                                                    
                                                    mainPanel(
+                                                     htmlOutput("optimal_svm"),
                                                      div(plotOutput("m_svm", height = 400, width = 500), align="center")
                                                    )),
                                                  
