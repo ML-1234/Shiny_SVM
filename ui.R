@@ -11,8 +11,11 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                       tabsetPanel(
                                         
                                         tabPanel("Présentation de l'application",
-                                                 div(htmlOutput("pre",align="justified",width=500,height = 400,style="margin:5%"))),
-                                       
+                                                 absolutePanel(
+                                                 div(htmlOutput("pre",align="justify",width=500,height = 400)),
+                                                 left="20%", right = "20%"
+                                                 )),
+                                        
                                         tabPanel("Notice d'utilisation à télécharger",
                                                  sidebarLayout(
                                                    sidebarPanel(
@@ -35,25 +38,27 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                              tabPanel("Support Vector Machine",
                                       tabsetPanel(
                                         tabPanel("Principe",
-                                                 htmlOutput("intro",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 h4(em("CAS LINEAIREMENT SEPARABLE"),align="center"),
-                                                 htmlOutput("intro2",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 
-                                                 div(plotOutput("plot_linear", height = 300, width = 400), align="center"),
-                                                 
-                                                 htmlOutput("vs",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 div(plotOutput("plot_linear_SVM", height = 300, width = 400),align="center"),
-                                                 
-                                                 htmlOutput("cout",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 h4(em("CAS PRESQUE LINEAIREMENT SEPARABLE"),align="center"),
-                                                 htmlOutput("cout2",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 div(plotOutput("plot_almostlinear_SVM", height = 300, width = 400), align="center"),
-                                                 
-                                                 htmlOutput("vr",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 h4(em("CAS NON LINEAIREMENT SEPARABLE"),align="center"),
-                                                 htmlOutput("vr2",align="justified",width=500,height = 400,style="margin:5%"),
-                                                 div(plotOutput("plot_radial_SVM", height = 300, width = 400), align="center"),
-                                                 htmlOutput("fin",align="justified",width=500,height = 400,style="margin:5%")
+                                                 absolutePanel(
+                                                   htmlOutput("intro",align="justify",width=500,height = 400),
+                                                   h4(em("CAS LINEAIREMENT SEPARABLE"),align="center"),
+                                                   htmlOutput("intro2",align="justify",width=500,height = 400),
+                                                   
+                                                   div(plotOutput("plot_linear", height = 300, width = 400), align="center"),
+                                                   
+                                                   htmlOutput("vs",align="justify",width=500,height = 400),
+                                                   div(plotOutput("plot_linear_SVM", height = 300, width = 400),align="center"),
+                                                   
+                                                   htmlOutput("cout",align="justify",width=500,height = 400),
+                                                   h4(em("CAS PRESQUE LINEAIREMENT SEPARABLE"),align="center"),
+                                                   htmlOutput("cout2",align="justify",width=500,height = 400),
+                                                   div(plotOutput("plot_almostlinear_SVM", height = 300, width = 400), align="center"),
+                                                   
+                                                   htmlOutput("vr",align="justify",width=500,height = 400),
+                                                   h4(em("CAS NON LINEAIREMENT SEPARABLE"),align="center"),
+                                                   htmlOutput("vr2",align="justify",width=500,height = 400),
+                                                   div(plotOutput("plot_radial_SVM", height = 300, width = 400), align="center"),
+                                                   htmlOutput("fin",align="justify",width=500,height = 400),
+                                                   left="20%", right = "20%")
                                         ),
                                         tabPanel("Démonstration et Comparaison",
                                                  h1("Application de la méthode des SVM"),
@@ -108,8 +113,8 @@ shinyUI(fluidPage(theme = shinytheme("flatly"),
                                                      L’objectif est de donner un poids plus important aux individus pour lesquels la valeur a été mal prédite pour la construction du modèle suivant. 
                                                      Le fait de corriger les poids au fur et à mesure permet de mieux prédire les valeurs difficiles.",
                                                      
-                                                     htmlOutput("optimal_gb"),
-                                                     div(plotOutput("m_gb", height = 400, width = 500), align="center")
+                                                    div(plotOutput("m_gb", height = 400, width = 500), align="center"),
+                                                     htmlOutput("optimal_gb")
                                                    )
                                                  ),
                                                  
