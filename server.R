@@ -466,10 +466,10 @@ shinyServer(function(input, output) {
     
   },digits=4, striped = TRUE, bordered = TRUE, rownames=TRUE,width=600) 
   
-  output$p1 <- renderText({paste("\n", "&nbsp; &nbsp; Dans la base de données </em> creditcard </em>, les cas de défaut ne représentent que 0.1727486% des observations.
+  output$p1 <- renderText({paste("\n", "&nbsp; &nbsp; Dans la base de données <em> creditcard </em>, les cas de défaut ne représentent que <strong> 0.1727486% </strong> des observations.
                                        Nos données sont donc largement asymétriques, comme nous le montre le graphique suivant,
                                        dans lequel la colonne des cas de défaut est presque invisible.", "\n","\n",
-                                 sep="<br/> ")})
+                                 sep="<br/>")})
   
   
   output$g1 <- renderPlot({ggplot(bdd, aes(Class)) + geom_bar(fill = c("#0073C2FF","#ffa500")) +
@@ -486,30 +486,29 @@ shinyServer(function(input, output) {
                                   "\n","&nbsp; &nbsp; On aura donc à la fois un problème de représentativité de la population par l’échantillon et avec l’aspect minimiseur 
                                                du taux d’erreur de l’algorithme du modèle en lui-même.",
                                   "\n","&nbsp; &nbsp; Il se dessine alors deux méthodes de traitement des données asymétriques : changer l’algorithme ou rééquilibrer les données 
-                                               en utilisant des « stratégies d’échantillonnage ». C’est cette dernière technique que nous avons choisi de développer ici.",
+                                               en utilisant des <strong> stratégies d’échantillonnage </strong>. C’est cette dernière technique que nous avons choisi de développer ici.",
                                   "\n","Dans les stratégies d’échantillonnage, il existe deux manières de procéder :",
-                                  sep="<br/> ")})
+                                  sep="<br/>")})
   
-  output$p2b <- renderText({paste("&nbsp;- Le sur-échantillonnage : consiste à augmenter le nombre d’observations de la classe minoritaire en créant 
-                                                         des observations artificielles.",
-                                  "&nbsp;- Le sous-échantillonnage : enlève des observations de la classe majoritaire. 
-                                                         Le choix des observations à supprimer peut se faire aléatoirement ou selon des critères spécifiques.",
-                                  sep="<br/> ")})
+  output$p2b <- renderText({paste("&nbsp;- Le <strong> sur-échantillonnage </strong> : consiste à augmenter le nombre d’observations de la classe minoritaire en créant 
+                                                         des observations artificielles.<br/>",
+                                  "&nbsp;- Le <strong> sous-échantillonnage </strong> : enlève des observations de la classe majoritaire. 
+                                                         Le choix des observations à supprimer peut se faire aléatoirement ou selon des critères spécifiques.")})
   
   output$p2c <- renderText({paste("\n","&nbsp; &nbsp; En général, le sur-échantillonnage est préféré car il ne suppose pas la perte d’une partie des données, 
                                                mais le sous-apprentissage peut aussi aider lorsque l’échantillon est considéré trop large.",
                                   "\n","&nbsp; &nbsp; Afin de ne pas surmener l’application Shiny, nous avons préféré appliquer la méthode de sous-échantillonnage, 
                                                et garder ainsi un échantillon d’apprentissage avec moins d’observations.", 
-                                  sep="<br/> ")})
+                                  sep="<br/>")})
   
   
-  output$p3 <- renderText({paste("\n", "&nbsp; &nbsp; Avant d’appliquer un quelconque traitement sur nos données, nous avons extrait de la base de données un échantillon 
-                                                     de validation, afin de pouvoir vérifier la classification sur un échantillon qui a gardé l’asymétrie d’origine. ",
+  output$p3 <- renderText({paste("\n", "&nbsp; &nbsp; Avant d’appliquer un quelconque traitement sur nos données, nous avons extrait de la base de données un <strong> échantillon 
+                                                     de validation </strong>, afin de pouvoir vérifier la classification sur un échantillon qui a gardé l’asymétrie d’origine. ",
                                  "\n", "&nbsp; &nbsp; Toujours dans l’objectif de garder une application la plus fluide possible, nous avons retenu la méthode de 
-                                                     sous-échantillonnage la plus simple : le sous-échantillonnage aléatoire, qui retire aléatoirement des observations de la classe majoritaire.",
+                                                     sous-échantillonnage la plus simple : le <strong> sous-échantillonnage aléatoire </strong>, qui retire aléatoirement des observations de la classe majoritaire.",
                                  "\n", "&nbsp; &nbsp; Afin de garder un nombre significatif d’observations ainsi que le caractère asymétrique de la base de données initiale 
-                                                     dans l’échantillon, nous avons arbitrairement choisi de d’augmenter à 8% la part de de cas de défaut dans l’échantillon d’apprentissage.", 
-                                 sep="<br/> ")})
+                                                     dans l’échantillon, nous avons arbitrairement choisi de d’augmenter à <strong> 8% </strong> la part de de cas de défaut dans l’échantillon d’apprentissage.", 
+                                 sep="<br/>")})
   
   
   output$p4 <- renderText({paste("\n", "&nbsp; &nbsp; La nouvelle base a", nrow(train_ub), "observations dont", sum(train_ub$Class==1), "cas de défaut et",sum(train_ub$Class==0), "cas de non-défaut.",  "\n","\n")})
