@@ -16,8 +16,18 @@ apt_packages:
 r_packages:
   - rsconnect
   - shiny
+  - shinythemes
   - tidyverse
   - kableExtra
+  - randomForest
+  - unbalanced
+  - e1071
+  - caret
+  - class
+  - ggplot2
+  - corrplot
+  - ROCR
+  - xgboost
   
 script:
   - R -f deploy.R
