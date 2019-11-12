@@ -4,15 +4,13 @@ library(unbalanced)
 library(e1071)
 library(caret)
 library(class)
-library(pROC)
 library(ggplot2)
 library(corrplot)
 library(ROCR)
-library(gbm)
 library(xgboost)
 
 ####Base de données####
-bdd <- read.csv("creditcard.csv")
+bdd <- readRDS(file = 'base.rds')
 
 bdd$Class <- as.factor(bdd$Class)
 form <- Class~.
