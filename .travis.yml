@@ -30,6 +30,7 @@ r_packages:
   - xgboost
   - gbm
   - pROC
+  - ROSE
   
 script:
   - R -f deploy.R
